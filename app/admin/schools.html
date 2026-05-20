@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ecoles - Admin GeniDoc</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/app/css/dashboard.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/app/admin/dashboard.html">
+          <img src="/image.png" alt="GeniDoc Hayat" />
+          <span><strong>GeniDoc Hayat</strong><small>Ecoles</small></span>
+        </a>
+        <div class="nav-actions">
+          <a class="link-btn" href="/app/admin/dashboard.html">Admin</a>
+          <a class="link-btn" href="/app/audit.html">Audit</a>
+          <button type="button" onclick="logout()">Deconnexion</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <p>Admin GeniDoc</p>
+        <h1>Creer et activer les ecoles clientes.</h1>
+        <span>Une ecole n'accede a la plateforme qu'apres validation et creation de son admin officiel.</span>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Nouvelle ecole</h2>
+            <p>Le premier admin ecole recevra ces identifiants de facon separee.</p>
+          </div>
+        </div>
+        <div class="message" id="schoolMessage"></div>
+        <form class="form-grid" id="schoolForm">
+          <div class="field"><label>Nom de l'ecole</label><input id="schoolName" required /></div>
+          <div class="field"><label>Ville</label><input id="schoolCity" /></div>
+          <div class="field"><label>Email officiel</label><input id="schoolEmail" type="email" /></div>
+          <div class="field"><label>Telephone</label><input id="schoolPhone" /></div>
+          <div class="field full"><label>Adresse</label><input id="schoolAddress" /></div>
+          <div class="field"><label>Admin - Prenom</label><input id="adminFirstName" required /></div>
+          <div class="field"><label>Admin - Nom</label><input id="adminLastName" required /></div>
+          <div class="field"><label>Admin - Email</label><input id="adminEmail" type="email" required /></div>
+          <div class="field"><label>Mot de passe temporaire</label><input id="adminPassword" type="password" minlength="10" required /></div>
+          <div class="field full"><button class="primary" type="submit">Creer l'ecole et l'admin</button></div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Ecoles actives</h2>
+            <p>Liste des etablissements valides sur la plateforme.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Ecole</th><th>Ville</th><th>Email</th><th>Comptes</th><th>Classes</th><th>Eleves</th></tr>
+            </thead>
+            <tbody id="schoolsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app/js/session.js"></script>
+    <script>
+      function showMessage(type, text) {
+        const box = document.getElementById("schoolMessage");
+        box.textContent = text;
+        box.className = `message show ${type}`;
+      }
+
+      async function loadSchools() {
+        const data = await apiRequest("/schools");
+        document.getElementById("schoolsBody").innerHTML = data.schools.map((school) => `
+          <tr>
+            <td><strong>${school.name}</strong></td>
+            <td>${school.city || "-"}</td>
+            <td>${school.email || "-"}</td>
+            <td>${school.users_count || 0}</td>
+            <td>${school.classes_count || 0}</td>
+            <td>${school.students_count || 0}</td>
+          </tr>
+        `).join("") || `<tr><td colspan="6" class="muted">Aucune ecole creee.</td></tr>`;
+      }
+
+      async function init() {
+        const user = await requireAuth(["GENIDOC_ADMIN", "PLATFORM_OWNER"]);
+        if (!user) return;
+        await loadSchools();
+      }
+
+      document.getElementById("schoolForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await apiRequest("/schools", {
+            method: "POST",
+            body: JSON.stringify({
+              name: document.getElementById("schoolName").value.trim(),
+              city: document.getElementById("schoolCity").value.trim(),
+              email: document.getElementById("schoolEmail").value.trim(),
+              phone: document.getElementById("schoolPhone").value.trim(),
+              address: document.getElementById("schoolAddress").value.trim(),
+              admin: {
+                first_name: document.getElementById("adminFirstName").value.trim(),
+                last_name: document.getElementById("adminLastName").value.trim(),
+                email: document.getElementById("adminEmail").value.trim(),
+                password: document.getElementById("adminPassword").value,
+              },
+            }),
+          });
+          event.target.reset();
+          showMessage("success", "Ecole et admin ecole crees.");
+          await loadSchools();
+        } catch (error) {
+          showMessage("error", error.message);
+        }
+      });
+
+      init();
+    </script>
+  </body>
+</html>

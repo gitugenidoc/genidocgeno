@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Audit - GeniDoc Hayat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/app/css/dashboard.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/">
+          <img src="/image.png" alt="GeniDoc Hayat" />
+          <span><strong>GeniDoc Hayat</strong><small>Audit sécurité</small></span>
+        </a>
+        <div class="nav-actions">
+          <button type="button" onclick="logout()">Déconnexion</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <p>Traçabilité</p>
+        <h1>Audit des accès sensibles.</h1>
+        <span>Vue reservee au proprietaire plateforme SENHAJI Anas. Aucun autre role n'accede au journal global.</span>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Événements récents</h2>
+            <p id="auditMeta">Chargement...</p>
+          </div>
+          <select id="actionFilter">
+            <option value="">Toutes actions</option>
+            <option>LOGIN_SUCCESS</option>
+            <option>LOGIN_FAILURE</option>
+            <option>HEALTH_PROFILE_VIEWED</option>
+            <option>HEALTH_PROFILE_UPDATED</option>
+            <option>DOCUMENT_UPLOADED</option>
+            <option>DOCUMENT_DOWNLOADED</option>
+            <option>QR_CREATED</option>
+            <option>QR_REVOKED</option>
+            <option>QR_SCANNED</option>
+            <option>INCIDENT_CREATED</option>
+            <option>INCIDENT_UPDATED</option>
+            <option>INCIDENT_ACTION_ADDED</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Action</th><th>Statut</th><th>Utilisateur</th><th>Élève</th><th>École</th></tr>
+            </thead>
+            <tbody id="auditBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app/js/session.js"></script>
+    <script>
+      async function loadAudit() {
+        const action = document.getElementById("actionFilter").value;
+        const data = await apiRequest(`/audit/events${action ? `?action=${encodeURIComponent(action)}` : ""}`);
+        document.getElementById("auditMeta").textContent = `${data.events.length} événement(s)`;
+        document.getElementById("auditBody").innerHTML = data.events.map((event) => `
+          <tr>
+            <td>${new Date(event.created_at).toLocaleString("fr-FR")}</td>
+            <td><strong>${event.action}</strong><br><span class="muted">${event.entity_type || "-"}</span></td>
+            <td>${event.status}</td>
+            <td>${event.user_email || "-"}</td>
+            <td>${event.student_first_name ? `${event.student_first_name} ${event.student_last_name}` : "-"}</td>
+            <td>${event.school_name || "-"}</td>
+          </tr>
+        `).join("") || `<tr><td colspan="6" class="muted">Aucun événement.</td></tr>`;
+      }
+
+      document.getElementById("actionFilter").addEventListener("change", loadAudit);
+
+      async function init() {
+        const user = await requireAuth(["PLATFORM_OWNER"]);
+        if (!user) return;
+        await loadAudit();
+      }
+
+      init();
+    </script>
+  </body>
+</html>

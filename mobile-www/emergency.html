@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Urgence - GeniDoc Hayat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/app/css/dashboard.css" />
+    <style>
+      body { background: #fbfcfe; }
+      .urgent { color: #b42318; }
+    </style>
+      <script src="/mobile-config.js"></script>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#123b64" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="GeniDoc Hayat" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/">
+          <img src="/image.png" alt="GeniDoc Hayat" />
+          <span><strong>GeniDoc Hayat</strong><small>Accès urgence</small></span>
+        </a>
+      </header>
+
+      <section class="hero">
+        <p class="urgent">Fiche urgence limitée</p>
+        <h1 id="studentName">Chargement...</h1>
+        <span id="studentMeta">Résolution du QR urgence.</span>
+      </section>
+
+      <section class="detail-grid">
+        <div class="panel">
+          <h2>Informations critiques</h2>
+          <div id="criticalInfo" class="muted">Chargement...</div>
+        </div>
+        <div class="panel">
+          <h2>Contacts urgence</h2>
+          <div id="contacts" class="muted">Chargement...</div>
+        </div>
+      </section>
+
+      <section class="detail-grid">
+        <div class="panel">
+          <h2>Allergies</h2>
+          <div id="allergies" class="muted"></div>
+        </div>
+        <div class="panel">
+          <h2>Conditions et traitements</h2>
+          <div id="conditions" class="muted"></div>
+          <br />
+          <div id="medications" class="muted"></div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      function list(items, render) {
+        return items.length ? items.map(render).join("") : `<p class="muted">Aucune donnée renseignée.</p>`;
+      }
+
+      async function loadEmergency() {
+        const token = new URLSearchParams(window.location.search).get("token");
+        if (!token) throw new Error("Token manquant");
+        const response = await fetch(`/api/emergency/${encodeURIComponent(token)}`);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "QR invalide");
+
+        const s = data.student;
+        document.getElementById("studentName").textContent = `${s.first_name} ${s.last_name}`;
+        document.getElementById("studentMeta").textContent =
+          `${s.school_name} · ${s.class_name || "Sans classe"} · ${s.date_of_birth ? new Date(s.date_of_birth).toLocaleDateString("fr-FR") : "Date naissance non renseignée"}`;
+        document.getElementById("criticalInfo").innerHTML = `
+          <p><strong>Groupe sanguin</strong><br>${s.blood_type || "-"}</p><br>
+          <p><strong>Protocole urgence</strong><br>${s.emergency_protocol || "-"}</p><br>
+          <p><strong>Traitement régulier</strong><br>${s.regular_treatment || "-"}</p><br>
+          <p><strong>Régime médical</strong><br>${s.medical_diet || "-"}</p><br>
+          <p><strong>Médecin traitant</strong><br>${s.treating_doctor_name || "-"} · ${s.treating_doctor_phone || "-"}</p><br>
+          <p><strong>Notes critiques</strong><br>${s.critical_notes || "-"}</p>
+        `;
+        document.getElementById("contacts").innerHTML = list(data.emergency_contacts, (c) =>
+          `<p><strong>${c.name}</strong><br>${c.relationship || "-"} · <a href="tel:${c.phone}">${c.phone}</a></p><br>`,
+        );
+        document.getElementById("allergies").innerHTML = list(data.allergies, (a) =>
+          `<p><strong>${a.allergen}</strong> · ${a.severity}<br>${a.reaction || ""}</p><br>`,
+        );
+        document.getElementById("conditions").innerHTML = list(data.conditions, (c) =>
+          `<p><strong>${c.condition_name}</strong> · ${c.severity}<br>${c.notes || ""}</p><br>`,
+        );
+        document.getElementById("medications").innerHTML = list(data.medications, (m) =>
+          `<p><strong>${m.medication_name}</strong><br>${m.dosage || "-"} · ${m.frequency || "-"}</p><br>`,
+        );
+      }
+
+      loadEmergency().catch((error) => {
+        document.getElementById("studentName").textContent = "Accès urgence indisponible";
+        document.getElementById("studentMeta").textContent = error.message;
+        document.getElementById("criticalInfo").textContent = "Le QR peut être expiré, révoqué ou invalide.";
+        document.getElementById("contacts").textContent = "-";
+      });
+    </script>
+  </body>
+</html>

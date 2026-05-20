@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pédiatre partenaire - GeniDoc Hayat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/app/css/dashboard.css" />
+  </head>
+  <body>
+    <script src="/app/js/session.js"></script>
+    <script src="/app/js/dashboard-shell.js"></script>
+    <script>
+      renderDashboardShell({
+        roleLabel: "Pediatrician",
+        title: "Consulter les informations autorisées par contexte.",
+        subtitle: "Cette page confirme l’accès pédiatre partenaire. L’accès urgence limité sera développé avec le QR.",
+      });
+      requireAuth(["PEDIATRICIAN"]).then((user) => user && setDashboardUser(user));
+    </script>
+  </body>
+</html>

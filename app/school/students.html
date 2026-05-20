@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Élèves - GeniDoc Hayat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/app/css/dashboard.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/">
+          <img src="/image.png" alt="GeniDoc Hayat" />
+          <span><strong>GeniDoc Hayat</strong><small>Élèves</small></span>
+        </a>
+        <div class="nav-actions">
+          <a class="link-btn" href="/app/school/dashboard.html">Dashboard</a>
+          <a class="link-btn" href="/app/school/incidents.html">Incidents</a>
+          <button type="button" onclick="logout()">Déconnexion</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <p id="roleLabel">École</p>
+        <h1>Liste des élèves.</h1>
+        <span>Recherchez un élève, filtrez par classe et ouvrez sa fiche administrative.</span>
+      </section>
+
+      <section class="panel" id="createPanel">
+        <div class="panel-head">
+          <div>
+            <h2>Ajouter un élève</h2>
+            <p>La fiche santé détaillée sera développée à l’étape suivante.</p>
+          </div>
+        </div>
+        <div class="message" id="studentMessage"></div>
+        <form class="form-grid" id="studentForm">
+          <div class="field"><label>Identifiant</label><input id="identifier" placeholder="ELV-001" /></div>
+          <div class="field"><label>Prénom</label><input id="firstName" required /></div>
+          <div class="field"><label>Nom</label><input id="lastName" required /></div>
+          <div class="field"><label>Classe</label><select id="classId"></select></div>
+          <div class="field"><label>Date naissance</label><input id="birthDate" type="date" /></div>
+          <div class="field"><label>Genre</label><select id="gender"><option value="">-</option><option>F</option><option>M</option></select></div>
+          <div class="field full"><label>Notes</label><textarea id="notes"></textarea></div>
+          <div class="field full"><button class="primary" type="submit">Ajouter l’élève</button></div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Élèves</h2>
+            <p id="studentsMeta">Chargement...</p>
+          </div>
+          <input id="search" placeholder="Rechercher..." />
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Élève</th><th>Classe</th><th>Naissance</th><th>Contacts</th><th></th></tr></thead>
+            <tbody id="studentsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app/js/session.js"></script>
+    <script>
+      let currentUser;
+      let canCreate = false;
+
+      function message(id, type, text) {
+        const box = document.getElementById(id);
+        box.textContent = text;
+        box.className = `message show ${type}`;
+      }
+
+      async function loadClasses() {
+        const data = await apiRequest(`/schools/${currentUser.school_id}/classes`);
+        document.getElementById("classId").innerHTML =
+          `<option value="">Sans classe</option>` +
+          data.classes.map((item) => `<option value="${item.id}">${item.name}</option>`).join("");
+      }
+
+      async function loadStudents() {
+        const search = document.getElementById("search").value.trim();
+        const data = await apiRequest(`/students${search ? `?search=${encodeURIComponent(search)}` : ""}`);
+        document.getElementById("studentsMeta").textContent = `${data.students.length} élève(s)`;
+        document.getElementById("studentsBody").innerHTML = data.students.map((student) => `
+          <tr>
+            <td><strong>${student.first_name} ${student.last_name}</strong><br><span class="muted">${student.identifier || "-"}</span></td>
+            <td>${student.class_name || "-"}</td>
+            <td>${student.date_of_birth ? new Date(student.date_of_birth).toLocaleDateString("fr-FR") : "-"}</td>
+            <td>${student.emergency_contacts_count}</td>
+            <td><a class="link-btn" href="/app/school/student-detail.html?id=${student.id}">Ouvrir</a></td>
+          </tr>
+        `).join("") || `<tr><td colspan="5" class="muted">Aucun élève.</td></tr>`;
+      }
+
+      document.getElementById("studentForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await apiRequest("/students", {
+            method: "POST",
+            body: JSON.stringify({
+              identifier: document.getElementById("identifier").value.trim(),
+              first_name: document.getElementById("firstName").value.trim(),
+              last_name: document.getElementById("lastName").value.trim(),
+              class_id: document.getElementById("classId").value || null,
+              date_of_birth: document.getElementById("birthDate").value || null,
+              gender: document.getElementById("gender").value || null,
+              notes: document.getElementById("notes").value.trim(),
+            }),
+          });
+          event.target.reset();
+          message("studentMessage", "success", "Élève ajouté.");
+          await loadStudents();
+        } catch (error) {
+          message("studentMessage", "error", error.message);
+        }
+      });
+
+      document.getElementById("search").addEventListener("input", () => {
+        window.clearTimeout(window.searchTimer);
+        window.searchTimer = window.setTimeout(loadStudents, 250);
+      });
+
+      async function init() {
+        currentUser = await requireAuth(["SCHOOL_ADMIN", "SCHOOL_NURSE"]);
+        if (!currentUser) return;
+        canCreate = currentUser.roles.includes("SCHOOL_ADMIN");
+        document.getElementById("roleLabel").textContent = canCreate ? "School Admin" : "School Nurse";
+        document.getElementById("createPanel").style.display = canCreate ? "block" : "none";
+        await loadClasses();
+        await loadStudents();
+      }
+
+      init();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Détail élève - GeniDoc Hayat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/app/css/dashboard.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/app/school/students.html">
+          <img src="/image.png" alt="GeniDoc Hayat" />
+          <span><strong>GeniDoc Hayat</strong><small>Détail élève</small></span>
+        </a>
+        <div class="nav-actions">
+          <a class="link-btn" href="/app/school/students.html">Retour élèves</a>
+          <button type="button" onclick="logout()">Déconnexion</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <p id="studentClass">Élève</p>
+        <h1 id="studentName">Chargement...</h1>
+        <span id="studentMeta"></span>
+      </section>
+
+      <section class="detail-grid">
+        <div class="panel">
+          <div class="panel-head"><div><h2>Tuteurs</h2><p>Parents ou responsables liés à l’élève.</p></div></div>
+          <div id="guardiansList" class="muted">Chargement...</div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Contacts urgence</h2><p>Contacts utilisables par l’école en urgence.</p></div></div>
+          <div id="contactsList" class="muted">Chargement...</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Fiche santé</h2>
+            <p>Informations critiques utiles à l’école. Ce n’est pas un dossier médical national.</p>
+          </div>
+        </div>
+        <div class="message" id="healthMessage"></div>
+        <form id="healthForm">
+          <div class="form-grid">
+            <div class="field">
+              <label>Groupe sanguin</label>
+              <input id="bloodType" placeholder="O+" />
+            </div>
+            <div class="field">
+              <label>Médecin traitant</label>
+              <input id="doctorName" placeholder="Dr ..." />
+            </div>
+            <div class="field">
+              <label>Téléphone médecin</label>
+              <input id="doctorPhone" />
+            </div>
+            <div class="field full">
+              <label>Cabinet / clinique</label>
+              <input id="doctorClinic" />
+            </div>
+            <div class="field full">
+              <label>Traitement régulier</label>
+              <textarea id="regularTreatment" placeholder="Nom, dose, fréquence si applicable"></textarea>
+            </div>
+            <div class="field full">
+              <label>Régime alimentaire médical</label>
+              <textarea id="medicalDiet" placeholder="Ex: sans arachide, diabète, intolérance..."></textarea>
+            </div>
+            <div class="field full">
+              <label>Protocole urgence</label>
+              <textarea id="emergencyProtocol" placeholder="Ce que l’école doit faire en cas d’urgence"></textarea>
+            </div>
+            <div class="field full">
+              <label>Notes critiques</label>
+              <textarea id="criticalNotes" placeholder="Informations à lire rapidement par l’infirmerie"></textarea>
+            </div>
+          </div>
+
+          <div class="detail-grid">
+            <div class="panel">
+              <h2>Allergies</h2>
+              <div class="form-grid compact">
+                <div class="field"><label>Allergène</label><input id="allergyName" placeholder="Arachide" /></div>
+                <div class="field"><label>Sévérité</label><select id="allergySeverity"><option>faible</option><option>modérée</option><option>sévère</option></select></div>
+                <div class="field"><label>Réaction</label><input id="allergyReaction" /></div>
+                <div class="field full"><button type="button" onclick="addAllergy()">Ajouter allergie</button></div>
+              </div>
+              <div id="allergiesList" class="muted"></div>
+            </div>
+            <div class="panel">
+              <h2>Conditions</h2>
+              <div class="form-grid compact">
+                <div class="field"><label>Condition</label><input id="conditionName" placeholder="Asthme" /></div>
+                <div class="field"><label>Sévérité</label><select id="conditionSeverity"><option>faible</option><option>modérée</option><option>sévère</option></select></div>
+                <div class="field"><label>Note</label><input id="conditionNotes" /></div>
+                <div class="field full"><button type="button" onclick="addCondition()">Ajouter condition</button></div>
+              </div>
+              <div id="conditionsList" class="muted"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Traitements</h2>
+            <div class="form-grid">
+              <div class="field"><label>Médicament</label><input id="medicationName" /></div>
+              <div class="field"><label>Dosage</label><input id="medicationDosage" /></div>
+              <div class="field"><label>Fréquence</label><input id="medicationFrequency" /></div>
+              <div class="field full"><button type="button" onclick="addMedication()">Ajouter traitement</button></div>
+            </div>
+            <div id="medicationsList" class="muted"></div>
+          </div>
+
+          <div class="field full">
+            <label>Nouvelle note médicale interne</label>
+            <textarea id="newNote" placeholder="Ajout optionnel à l’historique"></textarea>
+          </div>
+          <button class="primary" type="submit">Enregistrer la fiche santé</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Documents</h2>
+            <p>Certificats, ordonnances, autorisations et documents santé stockés chiffrés.</p>
+          </div>
+        </div>
+        <div class="message" id="documentMessage"></div>
+        <form class="form-grid" id="documentForm">
+          <div class="field">
+            <label>Type</label>
+            <select id="documentType">
+              <option value="certificat">Certificat</option>
+              <option value="vaccination">Carnet vaccination</option>
+              <option value="ordonnance">Ordonnance</option>
+              <option value="autorisation">Autorisation</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+          <div class="field"><label>Titre</label><input id="documentTitle" /></div>
+          <div class="field"><label>Fichier</label><input id="documentFile" type="file" required /></div>
+          <div class="field full"><button class="primary" type="submit">Ajouter document</button></div>
+        </form>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Document</th><th>Type</th><th>Taille</th><th>Ajouté</th><th></th></tr></thead>
+            <tbody id="documentsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>QR urgence</h2>
+            <p>Le QR ne contient aucune donnée médicale, seulement un token opaque révocable.</p>
+          </div>
+        </div>
+        <div class="message" id="qrMessage"></div>
+        <div class="detail-grid">
+          <div>
+            <p class="muted" id="qrStatus">Chargement...</p>
+            <br />
+            <button class="primary" type="button" onclick="createEmergencyQr()">Générer un QR urgence</button>
+            <button type="button" onclick="revokeEmergencyQr()">Révoquer</button>
+          </div>
+          <div>
+            <label>Lien urgence</label>
+            <input id="emergencyUrl" readonly placeholder="Générez un QR pour obtenir le lien" />
+            <br /><br />
+            <a class="link-btn" id="openEmergencyLink" href="#" target="_blank" style="display:none">Ouvrir la fiche urgence</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Déclarer un incident</h2>
+            <p>Accident, malaise, chute, action prise et notification parent.</p>
+          </div>
+        </div>
+        <div class="message" id="incidentMessage"></div>
+        <form class="form-grid" id="incidentForm">
+          <div class="field"><label>Titre</label><input id="incidentTitle" required /></div>
+          <div class="field">
+            <label>Type</label>
+            <select id="incidentType">
+              <option value="accident">Accident</option>
+              <option value="malaise">Malaise</option>
+              <option value="allergie">Allergie</option>
+              <option value="medicament">Médicament</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Sévérité</label>
+            <select id="incidentSeverity">
+              <option value="faible">Faible</option>
+              <option value="modérée">Modérée</option>
+              <option value="sévère">Sévère</option>
+            </select>
+          </div>
+          <div class="field"><label>Lieu</label><input id="incidentLocation" /></div>
+          <div class="field"><label>Date/heure</label><input id="incidentOccurredAt" type="datetime-local" /></div>
+          <label><input id="incidentParentNotified" type="checkbox" /> Parent notifié</label>
+          <div class="field full"><label>Description</label><textarea id="incidentDescription"></textarea></div>
+          <div class="field full"><label>Action prise</label><textarea id="incidentAction"></textarea></div>
+          <div class="field full"><button class="primary" type="submit">Créer l’incident</button></div>
+        </form>
+      </section>
+
+      <section class="detail-grid" id="writeForms">
+        <div class="panel">
+          <h2>Ajouter un tuteur</h2>
+          <div class="message" id="guardianMessage"></div>
+          <form class="form-grid" id="guardianForm">
+            <div class="field"><label>Prénom</label><input id="guardianFirst" required /></div>
+            <div class="field"><label>Nom</label><input id="guardianLast" required /></div>
+            <div class="field"><label>Lien</label><input id="guardianRelation" placeholder="Parent" /></div>
+            <div class="field"><label>Email</label><input id="guardianEmail" type="email" /></div>
+            <div class="field"><label>Téléphone</label><input id="guardianPhone" /></div>
+            <div class="field full"><button class="primary" type="submit">Ajouter</button></div>
+          </form>
+        </div>
+        <div class="panel">
+          <h2>Ajouter contact urgence</h2>
+          <div class="message" id="contactMessage"></div>
+          <form class="form-grid" id="contactForm">
+            <div class="field"><label>Nom</label><input id="contactName" required /></div>
+            <div class="field"><label>Lien</label><input id="contactRelation" /></div>
+            <div class="field"><label>Téléphone</label><input id="contactPhone" required /></div>
+            <div class="field full"><button class="primary" type="submit">Ajouter</button></div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app/js/session.js"></script>
+    <script>
+      const studentId = new URLSearchParams(window.location.search).get("id");
+      let canWrite = false;
+      let allergies = [];
+      let conditions = [];
+      let medications = [];
+
+      function message(id, type, text) {
+        const box = document.getElementById(id);
+        box.textContent = text;
+        box.className = `message show ${type}`;
+      }
+
+      function list(items, render) {
+        return items.length ? items.map(render).join("") : `<p class="muted">Aucune donnée.</p>`;
+      }
+
+      function readFileAsBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result).split(",")[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function renderHealthLists() {
+        document.getElementById("allergiesList").innerHTML = list(allergies, (item, index) =>
+          `<p><strong>${item.allergen}</strong> · ${item.severity}<br>${item.reaction || ""} <button type="button" onclick="removeAllergy(${index})">Retirer</button></p><br>`,
+        );
+        document.getElementById("conditionsList").innerHTML = list(conditions, (item, index) =>
+          `<p><strong>${item.condition_name}</strong> · ${item.severity}<br>${item.notes || ""} <button type="button" onclick="removeCondition(${index})">Retirer</button></p><br>`,
+        );
+        document.getElementById("medicationsList").innerHTML = list(medications, (item, index) =>
+          `<p><strong>${item.medication_name}</strong><br>${item.dosage || "-"} · ${item.frequency || "-"} <button type="button" onclick="removeMedication(${index})">Retirer</button></p><br>`,
+        );
+      }
+
+      function addAllergy() {
+        const allergen = document.getElementById("allergyName").value.trim();
+        if (!allergen) return;
+        allergies.push({
+          allergen,
+          severity: document.getElementById("allergySeverity").value,
+          reaction: document.getElementById("allergyReaction").value.trim(),
+        });
+        document.getElementById("allergyName").value = "";
+        document.getElementById("allergyReaction").value = "";
+        renderHealthLists();
+      }
+
+      function addCondition() {
+        const conditionName = document.getElementById("conditionName").value.trim();
+        if (!conditionName) return;
+        conditions.push({
+          condition_name: conditionName,
+          severity: document.getElementById("conditionSeverity").value,
+          notes: document.getElementById("conditionNotes").value.trim(),
+        });
+        document.getElementById("conditionName").value = "";
+        document.getElementById("conditionNotes").value = "";
+        renderHealthLists();
+      }
+
+      function addMedication() {
+        const medicationName = document.getElementById("medicationName").value.trim();
+        if (!medicationName) return;
+        medications.push({
+          medication_name: medicationName,
+          dosage: document.getElementById("medicationDosage").value.trim(),
+          frequency: document.getElementById("medicationFrequency").value.trim(),
+        });
+        document.getElementById("medicationName").value = "";
+        document.getElementById("medicationDosage").value = "";
+        document.getElementById("medicationFrequency").value = "";
+        renderHealthLists();
+      }
+
+      function removeAllergy(index) {
+        allergies.splice(index, 1);
+        renderHealthLists();
+      }
+
+      function removeCondition(index) {
+        conditions.splice(index, 1);
+        renderHealthLists();
+      }
+
+      function removeMedication(index) {
+        medications.splice(index, 1);
+        renderHealthLists();
+      }
+
+      async function loadStudent() {
+        const data = await apiRequest(`/students/${studentId}`);
+        const s = data.student;
+        document.getElementById("studentName").textContent = `${s.first_name} ${s.last_name}`;
+        document.getElementById("studentClass").textContent = s.class_name || "Sans classe";
+        document.getElementById("studentMeta").textContent =
+          `${s.identifier || "Sans identifiant"} · ${s.date_of_birth ? new Date(s.date_of_birth).toLocaleDateString("fr-FR") : "Date naissance non renseignée"}`;
+        document.getElementById("guardiansList").innerHTML = list(data.guardians, (g) =>
+          `<p><strong>${g.first_name} ${g.last_name}</strong><br>${g.relationship || "-"} · ${g.phone || "-"} · ${g.email || "-"}</p><br>`,
+        );
+        document.getElementById("contactsList").innerHTML = list(data.emergency_contacts, (c) =>
+          `<p><strong>${c.name}</strong><br>${c.relationship || "-"} · ${c.phone}</p><br>`,
+        );
+      }
+
+      async function loadHealth() {
+        const data = await apiRequest(`/students/${studentId}/health-profile`);
+        const p = data.profile || {};
+        document.getElementById("bloodType").value = p.blood_type || "";
+        document.getElementById("doctorName").value = p.treating_doctor_name || "";
+        document.getElementById("doctorPhone").value = p.treating_doctor_phone || "";
+        document.getElementById("doctorClinic").value = p.treating_doctor_clinic || "";
+        document.getElementById("regularTreatment").value = p.regular_treatment || "";
+        document.getElementById("medicalDiet").value = p.medical_diet || "";
+        document.getElementById("emergencyProtocol").value = p.emergency_protocol || "";
+        document.getElementById("criticalNotes").value = p.critical_notes || "";
+        allergies = data.allergies || [];
+        conditions = data.conditions || [];
+        medications = data.medications || [];
+        renderHealthLists();
+      }
+
+      async function loadDocuments() {
+        const data = await apiRequest(`/students/${studentId}/documents`);
+        document.getElementById("documentsBody").innerHTML = data.documents.map((doc) => `
+          <tr>
+            <td><strong>${doc.title}</strong><br><span class="muted">${doc.original_filename}</span></td>
+            <td>${doc.document_type}</td>
+            <td>${Math.round(doc.file_size / 1024)} Ko</td>
+            <td>${new Date(doc.uploaded_at).toLocaleDateString("fr-FR")}</td>
+            <td><a class="link-btn" href="/api/documents/${doc.id}/download">Télécharger</a></td>
+          </tr>
+        `).join("") || `<tr><td colspan="5" class="muted">Aucun document.</td></tr>`;
+      }
+
+      async function loadEmergencyQr() {
+        const data = await apiRequest(`/students/${studentId}/emergency-qr`);
+        const status = document.getElementById("qrStatus");
+        const input = document.getElementById("emergencyUrl");
+        const link = document.getElementById("openEmergencyLink");
+        if (!data.qr) {
+          status.textContent = "Aucun QR urgence actif.";
+          input.value = "";
+          link.style.display = "none";
+          return;
+        }
+        status.textContent = `QR actif · expire le ${new Date(data.qr.expires_at).toLocaleDateString("fr-FR")} · aperçu token ${data.qr.token_preview}`;
+        if (!input.value) {
+          input.placeholder = "Le lien complet est affiché uniquement après génération.";
+        }
+      }
+
+      async function createEmergencyQr() {
+        try {
+          const data = await apiRequest(`/students/${studentId}/emergency-qr`, { method: "POST" });
+          document.getElementById("emergencyUrl").value = data.qr.emergency_url;
+          const link = document.getElementById("openEmergencyLink");
+          link.href = data.qr.emergency_url;
+          link.style.display = "inline-flex";
+          message("qrMessage", "success", "QR urgence généré.");
+          await loadEmergencyQr();
+        } catch (error) {
+          message("qrMessage", "error", error.message);
+        }
+      }
+
+      async function revokeEmergencyQr() {
+        try {
+          await apiRequest(`/students/${studentId}/emergency-qr/revoke`, { method: "POST" });
+          document.getElementById("emergencyUrl").value = "";
+          document.getElementById("openEmergencyLink").style.display = "none";
+          message("qrMessage", "success", "QR urgence révoqué.");
+          await loadEmergencyQr();
+        } catch (error) {
+          message("qrMessage", "error", error.message);
+        }
+      }
+
+      document.getElementById("healthForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await apiRequest(`/students/${studentId}/health-profile`, {
+            method: "PUT",
+            body: JSON.stringify({
+              blood_type: document.getElementById("bloodType").value.trim(),
+              treating_doctor_name: document.getElementById("doctorName").value.trim(),
+              treating_doctor_phone: document.getElementById("doctorPhone").value.trim(),
+              treating_doctor_clinic: document.getElementById("doctorClinic").value.trim(),
+              regular_treatment: document.getElementById("regularTreatment").value.trim(),
+              medical_diet: document.getElementById("medicalDiet").value.trim(),
+              emergency_protocol: document.getElementById("emergencyProtocol").value.trim(),
+              critical_notes: document.getElementById("criticalNotes").value.trim(),
+              allergies,
+              conditions,
+              medications,
+              note: document.getElementById("newNote").value.trim(),
+            }),
+          });
+          document.getElementById("newNote").value = "";
+          message("healthMessage", "success", "Fiche santé enregistrée.");
+          await loadHealth();
+        } catch (error) {
+          message("healthMessage", "error", error.message);
+        }
+      });
+
+      document.getElementById("guardianForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await apiRequest(`/students/${studentId}/guardians`, {
+            method: "POST",
+            body: JSON.stringify({
+              first_name: document.getElementById("guardianFirst").value.trim(),
+              last_name: document.getElementById("guardianLast").value.trim(),
+              relationship: document.getElementById("guardianRelation").value.trim(),
+              email: document.getElementById("guardianEmail").value.trim(),
+              phone: document.getElementById("guardianPhone").value.trim(),
+              is_primary: true,
+            }),
+          });
+          event.target.reset();
+          message("guardianMessage", "success", "Tuteur ajouté.");
+          await loadStudent();
+        } catch (error) {
+          message("guardianMessage", "error", error.message);
+        }
+      });
+
+      document.getElementById("contactForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await apiRequest(`/students/${studentId}/emergency-contacts`, {
+            method: "POST",
+            body: JSON.stringify({
+              name: document.getElementById("contactName").value.trim(),
+              relationship: document.getElementById("contactRelation").value.trim(),
+              phone: document.getElementById("contactPhone").value.trim(),
+            }),
+          });
+          event.target.reset();
+          message("contactMessage", "success", "Contact ajouté.");
+          await loadStudent();
+        } catch (error) {
+          message("contactMessage", "error", error.message);
+        }
+      });
+
+      document.getElementById("documentForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const file = document.getElementById("documentFile").files[0];
+        if (!file) return;
+        try {
+          await apiRequest(`/students/${studentId}/documents`, {
+            method: "POST",
+            body: JSON.stringify({
+              document_type: document.getElementById("documentType").value,
+              title: document.getElementById("documentTitle").value.trim() || file.name,
+              filename: file.name,
+              mime_type: file.type || "application/octet-stream",
+              content_base64: await readFileAsBase64(file),
+            }),
+          });
+          event.target.reset();
+          message("documentMessage", "success", "Document ajouté.");
+          await loadDocuments();
+        } catch (error) {
+          message("documentMessage", "error", error.message);
+        }
+      });
+
+      document.getElementById("incidentForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await apiRequest(`/students/${studentId}/incidents`, {
+            method: "POST",
+            body: JSON.stringify({
+              title: document.getElementById("incidentTitle").value.trim(),
+              incident_type: document.getElementById("incidentType").value,
+              severity: document.getElementById("incidentSeverity").value,
+              location: document.getElementById("incidentLocation").value.trim(),
+              occurred_at: document.getElementById("incidentOccurredAt").value || null,
+              parent_notified: document.getElementById("incidentParentNotified").checked,
+              description: document.getElementById("incidentDescription").value.trim(),
+              action_taken: document.getElementById("incidentAction").value.trim(),
+            }),
+          });
+          event.target.reset();
+          message("incidentMessage", "success", "Incident créé.");
+        } catch (error) {
+          message("incidentMessage", "error", error.message);
+        }
+      });
+
+      async function init() {
+        const user = await requireAuth(["SCHOOL_ADMIN", "SCHOOL_NURSE"]);
+        if (!user) return;
+        canWrite = user.roles.includes("SCHOOL_ADMIN") || user.roles.includes("SCHOOL_NURSE");
+        document.getElementById("writeForms").style.display = user.roles.includes("SCHOOL_ADMIN") ? "grid" : "none";
+        document.querySelectorAll("#healthForm input, #healthForm textarea, #healthForm select, #healthForm button").forEach((item) => {
+          item.disabled = !canWrite;
+        });
+        await loadStudent();
+        await loadHealth();
+        await loadDocuments();
+        await loadEmergencyQr();
+      }
+
+      init();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "GeniDoc Hayat",
+  "short_name": "GeniDoc",
+  "description": "Portail sante scolaire GeniDoc Hayat",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f9fc",
+  "theme_color": "#123b64",
+  "icons": [
+    {
+      "src": "/image.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

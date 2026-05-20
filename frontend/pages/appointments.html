@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prise de RDV - GeniDoc</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-blue: #0052cc;
+        --primary-blue-dark: #003a99;
+        --primary-blue-light: #e6f0ff;
+        --bg-secondary: #f9fafc;
+        --text-dark: #111827;
+        --text-muted: #6b7280;
+        --border-light: #e5e7eb;
+        --font-main: "Plus Jakarta Sans", sans-serif;
+        --success: #10b981;
+        --warning: #f59e0b;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font-main);
+        background: linear-gradient(
+          135deg,
+          #ffffff 0%,
+          var(--primary-blue-light) 100%
+        );
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+      }
+
+      .logo-img {
+        width: 120px;
+        height: auto;
+      }
+
+      h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-dark);
+      }
+
+      .card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 82, 204, 0.1);
+        padding: 32px;
+        margin-bottom: 24px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        font-family: var(--font-main);
+        font-size: 14px;
+        transition: all 0.3s;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px var(--primary-blue-light);
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .doctors-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .doctor-card {
+        border: 2px solid var(--border-light);
+        border-radius: 12px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .doctor-card:hover {
+        border-color: var(--primary-blue);
+        box-shadow: 0 4px 16px rgba(0, 82, 204, 0.1);
+      }
+
+      .doctor-card.selected {
+        border-color: var(--primary-blue);
+        background-color: var(--primary-blue-light);
+      }
+
+      .doctor-name {
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 4px;
+      }
+
+      .doctor-specialty {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+      }
+
+      .doctor-phone {
+        font-size: 12px;
+        color: var(--primary-blue);
+      }
+
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .calendar-day:hover {
+        border-color: var(--primary-blue);
+      }
+
+      .calendar-day.selected {
+        background-color: var(--primary-blue);
+        color: white;
+        border-color: var(--primary-blue);
+      }
+
+      .calendar-day.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .time-slots {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .time-slot {
+        padding: 12px;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .time-slot:hover {
+        border-color: var(--primary-blue);
+      }
+
+      .time-slot.selected {
+        background-color: var(--primary-blue);
+        color: white;
+        border-color: var(--primary-blue);
+      }
+
+      .button {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: var(--font-main);
+      }
+
+      .button-primary {
+        background-color: var(--primary-blue);
+        color: white;
+      }
+
+      .button-primary:hover {
+        background-color: var(--primary-blue-dark);
+      }
+
+      .button-secondary {
+        background-color: var(--bg-secondary);
+        color: var(--text-dark);
+        border: 1px solid var(--border-light);
+      }
+
+      .button-secondary:hover {
+        background-color: var(--border-light);
+      }
+
+      .success-message {
+        background-color: #d1fae5;
+        color: #065f46;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .success-message.show {
+        display: block;
+      }
+
+      .error-message {
+        background-color: #fee2e2;
+        color: #991b1b;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .error-message.show {
+        display: block;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 20px;
+        color: var(--text-muted);
+      }
+
+      .spinner {
+        border: 3px solid var(--border-light);
+        border-top: 3px solid var(--primary-blue);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        margin-right: 8px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+
+        .doctors-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .calendar-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+    </style>
+      <link rel="stylesheet" href="../assets/identity.css" />
+  </head>
+  <body>
+    <div class="patient-shell">
+      <aside class="patient-sidebar">
+        <a href="../../f.html" title="Tableau de bord"><i class="fa-solid fa-table-columns"></i></a>
+        <a class="active" href="appointments.html" title="Prendre RDV"><i class="fa-solid fa-calendar-days"></i></a>
+        <a href="my-appointments.html" title="Mes RDV"><i class="fa-solid fa-clipboard-check"></i></a>
+        <a href="medical-record.html" title="Dossier médical"><i class="fa-solid fa-notes-medical"></i></a>
+        <a href="../../profile.html" title="Profil"><i class="fa-solid fa-circle-user"></i></a>
+      </aside>
+      <div class="container">
+      <div class="header">
+        <h1>📅 Prise de RDV</h1>
+        <img src="../../image.png" alt="GeniDoc" class="logo-img" />
+      </div>
+
+      <div class="success-message" id="successMessage"></div>
+      <div class="error-message" id="errorMessage"></div>
+
+      <div class="card">
+        <h2>Étape 1: Sélectionnez un médecin</h2>
+        <div class="doctors-grid" id="doctorsList">
+          <div class="loading">
+            <div class="spinner"></div>
+            Chargement des médecins...
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Étape 2: Choisissez une date</h2>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+
+      <div class="card">
+        <h2>Étape 3: Sélectionnez une heure</h2>
+        <div class="time-slots" id="timeSlots">
+          <p style="color: var(--text-muted); font-size: 12px">
+            Sélectionnez une date et un médecin
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Étape 4: Complétez votre demande</h2>
+        <div class="form-group">
+          <label for="reason">Motif de la consultation</label>
+          <textarea
+            id="reason"
+            placeholder="Décrivez votre motif de consultation..."
+            rows="4"
+          ></textarea>
+        </div>
+
+        <div style="display: flex; gap: 12px">
+          <button
+            class="button button-secondary"
+            onclick="window.history.back()"
+          >
+            Annuler
+          </button>
+          <button
+            class="button button-primary"
+            onclick="submitAppointment()"
+            id="submitBtn"
+          >
+            Demander un RDV
+          </button>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <script src="../assets/api.js"></script>
+    <script>
+      let selectedDoctor = null;
+      let selectedDate = null;
+      let selectedTime = null;
+
+      // Charger médecins
+      async function loadDoctors() {
+        try {
+          const doctors = await api.getAllDoctors();
+          const list = document.getElementById("doctorsList");
+
+          if (doctors.error) {
+            showError("Erreur lors du chargement des médecins");
+            return;
+          }
+
+          list.innerHTML = doctors
+            .map(
+              (doctor) => `
+          <div class="doctor-card" onclick="selectDoctor(${doctor.id}, this)">
+            <div class="doctor-name">${doctor.name}</div>
+            <div class="doctor-specialty">${doctor.specialty}</div>
+            <div class="doctor-phone">${doctor.phone}</div>
+          </div>
+        `,
+            )
+            .join("");
+        } catch (error) {
+          showError("Erreur connexion API");
+        }
+      }
+
+      // Générer calendrier
+      function generateCalendar() {
+        const calendarGrid = document.getElementById("calendarGrid");
+        const today = new Date();
+        let html = "";
+
+        for (let i = 0; i < 30; i++) {
+          const date = new Date(today);
+          date.setDate(date.getDate() + i);
+
+          const dateStr = date.toISOString().split("T")[0];
+          const day = date.getDate();
+
+          html += `
+          <div class="calendar-day ${i === 0 ? "disabled" : ""}" 
+               onclick="selectDate('${dateStr}', this)"
+               ${i === 0 ? 'style="opacity: 0.5; cursor: not-allowed;"' : ""}>
+            ${day}
+          </div>
+        `;
+        }
+
+        calendarGrid.innerHTML = html;
+      }
+
+      // Sélectionner médecin
+      function selectDoctor(id, element) {
+        document
+          .querySelectorAll(".doctor-card")
+          .forEach((el) => el.classList.remove("selected"));
+        element.classList.add("selected");
+        selectedDoctor = id;
+      }
+
+      // Sélectionner date
+      function selectDate(date, element) {
+        document
+          .querySelectorAll(".calendar-day")
+          .forEach((el) => el.classList.remove("selected"));
+        element.classList.add("selected");
+        selectedDate = date;
+        generateTimeSlots();
+      }
+
+      // Générer créneaux horaires
+      function generateTimeSlots() {
+        const timeSlots = document.getElementById("timeSlots");
+        const slots = [
+          "09:00",
+          "09:30",
+          "10:00",
+          "10:30",
+          "11:00",
+          "11:30",
+          "14:00",
+          "14:30",
+          "15:00",
+          "15:30",
+          "16:00",
+          "16:30",
+        ];
+
+        timeSlots.innerHTML = slots
+          .map(
+            (time) => `
+        <div class="time-slot" onclick="selectTime('${time}', this)">${time}</div>
+      `,
+          )
+          .join("");
+      }
+
+      // Sélectionner heure
+      function selectTime(time, element) {
+        document
+          .querySelectorAll(".time-slot")
+          .forEach((el) => el.classList.remove("selected"));
+        element.classList.add("selected");
+        selectedTime = time;
+      }
+
+      // Soumettre RDV
+      async function submitAppointment() {
+        if (!selectedDoctor || !selectedDate || !selectedTime) {
+          showError("Veuillez compléter tous les champs");
+          return;
+        }
+
+        const reason = document.getElementById("reason").value;
+        const btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> Traitement...';
+
+        try {
+          const result = await api.createAppointment({
+            doctor_id: selectedDoctor,
+            appointment_date: selectedDate,
+            appointment_time: selectedTime,
+            reason,
+          });
+
+          if (result.error) {
+            showError(result.error);
+          } else {
+            showSuccess(
+              "RDV demandé avec succès! Un email de confirmation vous sera envoyé.",
+            );
+            setTimeout(
+              () => (window.location.href = "my-appointments.html"),
+              2000,
+            );
+          }
+        } catch (error) {
+          showError("Erreur lors de la création du RDV");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = "Demander un RDV";
+        }
+      }
+
+      function showSuccess(msg) {
+        const el = document.getElementById("successMessage");
+        el.textContent = msg;
+        el.classList.add("show");
+      }
+
+      function showError(msg) {
+        const el = document.getElementById("errorMessage");
+        el.textContent = msg;
+        el.classList.add("show");
+        setTimeout(() => el.classList.remove("show"), 5000);
+      }
+
+      // Init
+      window.addEventListener("DOMContentLoaded", () => {
+        if (!api.getToken()) {
+          window.location.href = "../auth.html";
+          return;
+        }
+        loadDoctors();
+        generateCalendar();
+      });
+    </script>
+  </body>
+</html>

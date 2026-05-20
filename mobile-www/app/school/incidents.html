@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Incidents - GeniDoc Hayat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/app/css/dashboard.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/">
+          <img src="/image.png" alt="GeniDoc Hayat" />
+          <span><strong>GeniDoc Hayat</strong><small>Incidents scolaires</small></span>
+        </a>
+        <div class="nav-actions">
+          <a class="link-btn" href="/app/school/students.html">Élèves</a>
+          <a class="link-btn" href="/app/school/dashboard.html">Dashboard</a>
+          <button type="button" onclick="logout()">Déconnexion</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <p>Traçabilité</p>
+        <h1>Incidents scolaires.</h1>
+        <span>Suivez les incidents ouverts, les actions prises et la notification parent.</span>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Liste des incidents</h2>
+            <p id="incidentsMeta">Chargement...</p>
+          </div>
+          <select id="statusFilter">
+            <option value="">Tous</option>
+            <option value="open">Ouverts</option>
+            <option value="in_progress">En suivi</option>
+            <option value="resolved">Résolus</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Incident</th><th>Élève</th><th>Sévérité</th><th>Statut</th><th>Date</th><th></th></tr></thead>
+            <tbody id="incidentsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" id="detailPanel" style="display:none">
+        <div class="panel-head">
+          <div>
+            <h2 id="detailTitle">Incident</h2>
+            <p id="detailMeta"></p>
+          </div>
+        </div>
+        <div class="message" id="incidentMessage"></div>
+        <div class="detail-grid">
+          <div>
+            <label>Statut</label>
+            <select id="detailStatus">
+              <option value="open">Ouvert</option>
+              <option value="in_progress">En suivi</option>
+              <option value="resolved">Résolu</option>
+            </select>
+          </div>
+          <div>
+            <label>Parent notifié</label>
+            <select id="detailParentNotified">
+              <option value="false">Non</option>
+              <option value="true">Oui</option>
+            </select>
+          </div>
+        </div>
+        <br />
+        <button class="primary" type="button" onclick="updateIncident()">Mettre à jour</button>
+
+        <hr style="border:0;border-top:1px solid #e6ebf2;margin:24px 0" />
+        <h2>Ajouter une action</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label>Type</label>
+            <select id="actionType">
+              <option value="note">Note</option>
+              <option value="care_given">Soin donné</option>
+              <option value="parent_called">Parent appelé</option>
+              <option value="emergency_called">Urgences appelées</option>
+            </select>
+          </div>
+          <div class="field full"><label>Description</label><textarea id="actionDescription"></textarea></div>
+          <div class="field full"><button type="button" onclick="addAction()">Ajouter action</button></div>
+        </div>
+        <div id="actionsList" class="muted"></div>
+      </section>
+    </main>
+
+    <script src="/app/js/session.js"></script>
+    <script>
+      let selectedIncidentId = null;
+
+      function message(id, type, text) {
+        const box = document.getElementById(id);
+        box.textContent = text;
+        box.className = `message show ${type}`;
+      }
+
+      async function loadIncidents() {
+        const status = document.getElementById("statusFilter").value;
+        const data = await apiRequest(`/incidents${status ? `?status=${status}` : ""}`);
+        document.getElementById("incidentsMeta").textContent = `${data.incidents.length} incident(s)`;
+        document.getElementById("incidentsBody").innerHTML = data.incidents.map((incident) => `
+          <tr>
+            <td><strong>${incident.title}</strong><br><span class="muted">${incident.incident_type}</span></td>
+            <td>${incident.first_name} ${incident.last_name}<br><span class="muted">${incident.class_name || "-"}</span></td>
+            <td>${incident.severity}</td>
+            <td>${incident.status}</td>
+            <td>${new Date(incident.occurred_at).toLocaleString("fr-FR")}</td>
+            <td><button type="button" onclick="openIncident(${incident.id})">Ouvrir</button></td>
+          </tr>
+        `).join("") || `<tr><td colspan="6" class="muted">Aucun incident.</td></tr>`;
+      }
+
+      async function openIncident(id) {
+        selectedIncidentId = id;
+        const data = await apiRequest(`/incidents/${id}`);
+        const incident = data.incident;
+        document.getElementById("detailPanel").style.display = "block";
+        document.getElementById("detailTitle").textContent = incident.title;
+        document.getElementById("detailMeta").textContent =
+          `${incident.first_name} ${incident.last_name} · ${incident.location || "-"} · ${incident.description || ""}`;
+        document.getElementById("detailStatus").value = incident.status;
+        document.getElementById("detailParentNotified").value = incident.parent_notified_at ? "true" : "false";
+        document.getElementById("actionsList").innerHTML = data.actions.map((action) => `
+          <p><strong>${action.action_type}</strong> · ${new Date(action.created_at).toLocaleString("fr-FR")}<br>${action.description}</p><br>
+        `).join("") || `<p class="muted">Aucune action.</p>`;
+      }
+
+      async function updateIncident() {
+        try {
+          await apiRequest(`/incidents/${selectedIncidentId}`, {
+            method: "PATCH",
+            body: JSON.stringify({
+              status: document.getElementById("detailStatus").value,
+              parent_notified: document.getElementById("detailParentNotified").value === "true",
+            }),
+          });
+          message("incidentMessage", "success", "Incident mis à jour.");
+          await loadIncidents();
+          await openIncident(selectedIncidentId);
+        } catch (error) {
+          message("incidentMessage", "error", error.message);
+        }
+      }
+
+      async function addAction() {
+        try {
+          await apiRequest(`/incidents/${selectedIncidentId}/actions`, {
+            method: "POST",
+            body: JSON.stringify({
+              action_type: document.getElementById("actionType").value,
+              description: document.getElementById("actionDescription").value.trim(),
+            }),
+          });
+          document.getElementById("actionDescription").value = "";
+          message("incidentMessage", "success", "Action ajoutée.");
+          await openIncident(selectedIncidentId);
+        } catch (error) {
+          message("incidentMessage", "error", error.message);
+        }
+      }
+
+      document.getElementById("statusFilter").addEventListener("change", loadIncidents);
+
+      async function init() {
+        const user = await requireAuth(["SCHOOL_ADMIN", "SCHOOL_NURSE"]);
+        if (!user) return;
+        await loadIncidents();
+      }
+
+      init();
+    </script>
+  </body>
+</html>

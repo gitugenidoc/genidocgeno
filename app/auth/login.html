@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connexion - GeniDoc Hayat</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --blue: #0052cc;
+        --teal: #14a38b;
+        --ink: #101828;
+        --muted: #667085;
+        --line: #e6ebf2;
+        --white: #ffffff;
+        --font: "Plus Jakarta Sans", system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        min-height: 100vh;
+        font-family: var(--font);
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 8% 14%, rgba(0, 82, 204, 0.18) 0, transparent 32%),
+          radial-gradient(circle at 92% 8%, rgba(20, 184, 166, 0.16) 0, transparent 34%),
+          linear-gradient(135deg, #f7fafc 0%, #edf4fb 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .auth-shell {
+        width: min(1180px, 100%);
+        min-height: min(760px, calc(100vh - 48px));
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(380px, 0.85fr);
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(255, 255, 255, 0.84);
+        border-radius: 34px;
+        box-shadow: 0 30px 80px rgba(16, 24, 40, 0.12);
+        overflow: hidden;
+      }
+
+      .product-panel {
+        padding: 44px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 40px;
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(239, 247, 255, 0.66)),
+          radial-gradient(circle at 18% 20%, rgba(0, 82, 204, 0.16), transparent 32%);
+      }
+
+      .auth-card {
+        width: 100%;
+        background: var(--white);
+        border-left: 1px solid var(--line);
+        padding: 48px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 30px;
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .brand img {
+        height: 58px;
+        width: auto;
+        object-fit: contain;
+      }
+
+      .brand strong,
+      .brand span span {
+        display: block;
+      }
+
+      .brand strong {
+        font-size: 17px;
+      }
+
+      .brand span span {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        gap: 8px;
+        min-height: 34px;
+        padding: 0 12px;
+        border: 1px solid rgba(0, 82, 204, 0.16);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.76);
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 22px;
+      }
+
+      h1 {
+        max-width: 660px;
+        font-size: clamp(42px, 5vw, 68px);
+        line-height: 0.98;
+        letter-spacing: 0;
+        margin-bottom: 22px;
+      }
+
+      h2 {
+        font-size: 32px;
+        line-height: 1.05;
+        margin-bottom: 10px;
+      }
+
+      .lead {
+        color: var(--muted);
+        line-height: 1.6;
+        margin-bottom: 26px;
+      }
+
+      .product-panel .lead {
+        max-width: 620px;
+        font-size: 18px;
+      }
+
+      .role-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .role-card {
+        min-height: 96px;
+        padding: 18px;
+        border: 1px solid rgba(230, 235, 242, 0.9);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .role-card i {
+        color: var(--blue);
+        font-size: 20px;
+        margin-bottom: 14px;
+      }
+
+      .role-card strong {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      .role-card span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .security-strip {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .security-strip div {
+        padding: 16px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(230, 235, 242, 0.88);
+      }
+
+      .security-strip i {
+        color: var(--teal);
+        margin-bottom: 10px;
+      }
+
+      .security-strip strong,
+      .security-strip span {
+        display: block;
+      }
+
+      .security-strip strong {
+        font-size: 13px;
+        margin-bottom: 4px;
+      }
+
+      .security-strip span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .form-heading {
+        margin-bottom: 26px;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 7px;
+      }
+
+      input {
+        width: 100%;
+        min-height: 48px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 0 14px;
+        font: inherit;
+        margin-bottom: 16px;
+      }
+
+      button {
+        width: 100%;
+        min-height: 48px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--blue);
+        color: #ffffff;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .form-footer {
+        margin-top: 18px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .form-footer a {
+        color: var(--blue);
+        text-decoration: none;
+      }
+
+      .message {
+        display: none;
+        border-radius: 14px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .message.show {
+        display: block;
+      }
+
+      .message.error {
+        background: #fef2f2;
+        color: #b42318;
+      }
+
+      @media (max-width: 920px) {
+        body {
+          align-items: flex-start;
+          overflow: auto;
+        }
+
+        .auth-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .auth-card {
+          border-left: 0;
+          border-top: 1px solid var(--line);
+          padding: 32px 24px;
+        }
+
+        .product-panel {
+          padding: 30px 24px;
+        }
+
+        h1 {
+          font-size: 42px;
+        }
+
+        .security-strip {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 560px) {
+        body {
+          padding: 12px;
+        }
+
+        .auth-shell {
+          border-radius: 24px;
+        }
+
+        .role-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .form-footer {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="auth-shell">
+      <section class="product-panel" aria-label="GeniDoc Hayat School Health">
+        <div>
+          <a class="brand" href="/">
+            <img src="/image.png" alt="GeniDoc Hayat" />
+            <span>
+              <strong>GeniDoc Hayat</strong>
+              <span>School Health</span>
+            </span>
+          </a>
+
+          <span class="eyebrow"><i class="fa-solid fa-shield-heart"></i> Portail sécurisé</span>
+          <h1>La santé scolaire organisée pour les écoles privées.</h1>
+          <p class="lead">
+            Un espace unique pour les fiches santé enfant, les accès urgence tokenisés,
+            les documents médicaux, les incidents scolaires et la traçabilité.
+          </p>
+
+          <div class="role-grid" aria-label="Espaces disponibles">
+            <div class="role-card">
+              <i class="fa-solid fa-school"></i>
+              <strong>École</strong>
+              <span>Gestion des élèves, classes, incidents et fiches critiques.</span>
+            </div>
+            <div class="role-card">
+              <i class="fa-solid fa-people-roof"></i>
+              <strong>Parents</strong>
+              <span>Mise à jour des informations santé et autorisations.</span>
+            </div>
+            <div class="role-card">
+              <i class="fa-solid fa-user-nurse"></i>
+              <strong>Infirmerie</strong>
+              <span>Accès rapide aux informations utiles pendant la journée scolaire.</span>
+            </div>
+            <div class="role-card">
+              <i class="fa-solid fa-user-doctor"></i>
+              <strong>Pédiatre</strong>
+              <span>Consultation limitée aux dossiers autorisés par l’établissement.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="security-strip" aria-label="Sécurité">
+          <div>
+            <i class="fa-solid fa-key"></i>
+            <strong>Session protégée</strong>
+            <span>Cookie httpOnly et rôles vérifiés côté serveur.</span>
+          </div>
+          <div>
+            <i class="fa-solid fa-qrcode"></i>
+            <strong>QR tokenisé</strong>
+            <span>Aucune donnée médicale stockée dans le QR.</span>
+          </div>
+          <div>
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <strong>Audit</strong>
+            <span>Chaque accès sensible est historisé.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="auth-card" aria-label="Connexion">
+        <div class="form-heading">
+          <h2>Connexion</h2>
+          <p class="lead">Accès sécurisé aux espaces école, parent, pédiatre et administration.</p>
+        </div>
+
+        <div class="message" id="message"></div>
+        <form id="loginForm">
+          <label for="email">Email</label>
+          <input id="email" type="email" autocomplete="email" required />
+          <label for="password">Mot de passe</label>
+          <input id="password" type="password" autocomplete="current-password" required />
+          <button type="submit"><i class="fa-solid fa-lock"></i> Se connecter</button>
+        </form>
+        <div class="form-footer">
+          <span>Accès réservé aux comptes activés.</span>
+          <a href="/app/auth/forgot-password.html">Mot de passe oublié</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app/js/session.js"></script>
+    <script>
+      document.getElementById("loginForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const box = document.getElementById("message");
+        box.className = "message";
+        try {
+          const result = await login({
+            email: document.getElementById("email").value.trim(),
+            password: document.getElementById("password").value,
+          });
+          window.location.href = result.redirect_to;
+        } catch (error) {
+          box.textContent = error.message;
+          box.className = "message show error";
+        }
+      });
+    </script>
+  </body>
+</html>

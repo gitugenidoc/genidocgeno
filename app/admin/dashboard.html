@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin GeniDoc - GeniDoc Hayat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/app/css/dashboard.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/">
+          <img src="/image.png" alt="GeniDoc Hayat" />
+          <span><strong>GeniDoc Hayat</strong><small>Admin plateforme</small></span>
+        </a>
+        <div class="nav-actions">
+          <a class="link-btn" href="/app/admin/schools.html">Ecoles</a>
+          <a class="link-btn" id="auditLink" href="/app/audit.html" style="display:none">Audit</a>
+          <button type="button" onclick="logout()">Deconnexion</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <p>Admin GeniDoc</p>
+        <h1>Administrer la plateforme sans acceder aux dossiers medicaux par defaut.</h1>
+        <span>Creez les ecoles, activez leurs administrateurs et gardez l'audit global sous controle.</span>
+      </section>
+
+      <section class="grid">
+        <article><strong>Ecoles</strong><span id="schoolsCount">0</span></article>
+        <article><strong>Comptes ecole</strong><span id="usersCount">0</span></article>
+        <article><strong>Acces sensible</strong><span>Audit serveur</span></article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Actions plateforme</h2>
+            <p>L'admin GeniDoc cree l'etablissement, puis l'admin ecole gere classes, staff, eleves et parents.</p>
+          </div>
+          <a class="primary-btn" href="/app/admin/schools.html">Creer une ecole</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app/js/session.js"></script>
+    <script>
+      async function loadAdminDashboard() {
+        const user = await requireAuth(["GENIDOC_ADMIN", "PLATFORM_OWNER"]);
+        if (!user) return;
+        document.getElementById("auditLink").style.display = user.roles.includes("PLATFORM_OWNER") ? "inline-flex" : "none";
+        const data = await apiRequest("/schools");
+        document.getElementById("schoolsCount").textContent = data.schools.length;
+        document.getElementById("usersCount").textContent = data.schools
+          .reduce((total, school) => total + Number(school.users_count || 0), 0);
+      }
+
+      loadAdminDashboard();
+    </script>
+  </body>
+</html>

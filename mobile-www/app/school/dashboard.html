@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard école - GeniDoc Hayat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/app/css/dashboard.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/">
+          <img src="/image.png" alt="GeniDoc Hayat" />
+          <span><strong>GeniDoc Hayat</strong><small>School Admin</small></span>
+        </a>
+        <div class="nav-actions">
+          <a class="link-btn" href="/app/school/students.html">Élèves</a>
+          <button type="button" onclick="logout()">Déconnexion</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <p id="schoolName">École</p>
+        <h1>Piloter les classes et les élèves.</h1>
+        <span>Créez les classes, ajoutez les élèves et préparez la base pour les fiches santé.</span>
+      </section>
+
+      <section class="grid">
+        <article><strong>Classes</strong><span id="classesCount">0</span></article>
+        <article><strong>Élèves</strong><span id="studentsCount">0</span></article>
+        <article><strong>Contacts urgence</strong><span id="contactsCount">0</span></article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Créer une classe</h2>
+            <p>La classe servira ensuite à filtrer les élèves.</p>
+          </div>
+        </div>
+        <div class="message" id="classMessage"></div>
+        <form class="form-grid" id="classForm">
+          <div class="field"><label>Nom</label><input id="className" required placeholder="CP-A" /></div>
+          <div class="field"><label>Niveau</label><input id="classLevel" placeholder="Primaire" /></div>
+          <div class="field"><label>Année scolaire</label><input id="academicYear" placeholder="2026-2027" /></div>
+          <div class="field full"><button class="primary" type="submit">Créer la classe</button></div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Classes</h2>
+            <p>Vue rapide des classes de l’école.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Classe</th><th>Niveau</th><th>Année</th><th>Élèves</th></tr></thead>
+            <tbody id="classesBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app/js/session.js"></script>
+    <script>
+      let currentUser;
+
+      function message(id, type, text) {
+        const box = document.getElementById(id);
+        box.textContent = text;
+        box.className = `message show ${type}`;
+      }
+
+      async function loadDashboard() {
+        currentUser = await requireAuth(["SCHOOL_ADMIN"]);
+        if (!currentUser) return;
+        const data = await apiRequest("/schools/current");
+        document.getElementById("schoolName").textContent = data.school.name;
+        document.getElementById("classesCount").textContent = data.stats.classes_count;
+        document.getElementById("studentsCount").textContent = data.stats.students_count;
+        document.getElementById("contactsCount").textContent = data.stats.emergency_contacts_count;
+
+        const classes = await apiRequest(`/schools/${currentUser.school_id}/classes`);
+        document.getElementById("classesBody").innerHTML = classes.classes.map((item) => `
+          <tr>
+            <td><strong>${item.name}</strong></td>
+            <td>${item.level || "-"}</td>
+            <td>${item.academic_year || "-"}</td>
+            <td>${item.students_count}</td>
+          </tr>
+        `).join("") || `<tr><td colspan="4" class="muted">Aucune classe créée.</td></tr>`;
+      }
+
+      document.getElementById("classForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await apiRequest(`/schools/${currentUser.school_id}/classes`, {
+            method: "POST",
+            body: JSON.stringify({
+              name: document.getElementById("className").value.trim(),
+              level: document.getElementById("classLevel").value.trim(),
+              academic_year: document.getElementById("academicYear").value.trim(),
+            }),
+          });
+          event.target.reset();
+          message("classMessage", "success", "Classe créée.");
+          await loadDashboard();
+        } catch (error) {
+          message("classMessage", "error", error.message);
+        }
+      });
+
+      loadDashboard();
+    </script>
+  </body>
+</html>

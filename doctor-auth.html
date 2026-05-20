@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GeniDoc - Accès médecin</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="frontend/assets/identity.css" />
+    <style>
+      :root {
+        --font-main: "Plus Jakarta Sans", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        font-family: var(--font-main);
+      }
+
+      .container {
+        width: min(980px, 100%);
+        display: grid;
+        grid-template-columns: 0.85fr 1.15fr;
+        gap: 24px;
+      }
+
+      .brand-panel,
+      .form-panel {
+        background: #fff;
+        border: 1px solid var(--border-light);
+        border-radius: 28px;
+        padding: 32px;
+      }
+
+      .brand-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 640px;
+      }
+
+      .logo-img {
+        height: 78px !important;
+        width: auto;
+        object-fit: contain;
+        align-self: flex-start;
+      }
+
+      h1 {
+        margin-top: 36px;
+        color: var(--text-dark);
+        font-size: 38px;
+        line-height: 1.08;
+        letter-spacing: 0;
+      }
+
+      .brand-panel p,
+      .muted {
+        color: var(--text-muted);
+        line-height: 1.55;
+        font-size: 14px;
+      }
+
+      .pill-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .pill {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 999px;
+        background: #f8fafc;
+        color: var(--text-dark);
+        font-weight: 700;
+        font-size: 13px;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+
+      .tab {
+        flex: 1;
+        min-height: 42px;
+        border-radius: 999px;
+        border: 1px solid var(--border-light);
+        background: #fff;
+        color: var(--text-muted);
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .tab.active {
+        background: var(--brand-blue);
+        color: #fff;
+        border-color: var(--brand-blue);
+      }
+
+      .content {
+        display: none;
+      }
+
+      .content.active {
+        display: block;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-group.full {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--text-dark);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      input,
+      select {
+        width: 100%;
+        min-height: 44px;
+        border: 1px solid var(--border-light);
+        padding: 0 14px;
+        font-family: inherit;
+        color: var(--text-dark);
+        background: #fff;
+      }
+
+      .submit-btn {
+        width: 100%;
+        min-height: 48px;
+        border: 0;
+        font-weight: 800;
+        cursor: pointer;
+        margin-top: 8px;
+      }
+
+      .message {
+        display: none;
+        margin-bottom: 16px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .message.show {
+        display: block;
+      }
+
+      .error-message {
+        color: #991b1b;
+        background: #fef2f2;
+      }
+
+      .footer-link {
+        margin-top: 18px;
+        text-align: center;
+        font-size: 13px;
+      }
+
+      .footer-link a {
+        color: var(--brand-blue);
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      @media (max-width: 860px) {
+        .container {
+          grid-template-columns: 1fr;
+        }
+
+        .brand-panel {
+          min-height: auto;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <section class="brand-panel">
+        <div>
+          <img src="image.png" alt="GeniDoc" class="logo-img" />
+          <h1>Accès médecin</h1>
+          <p>
+            Créez votre profil praticien et rattachez-le à votre cabinet privé
+            pour gérer vos consultations depuis GeniDoc.
+          </p>
+          <div class="pill-list">
+            <div class="pill"><i class="fa-solid fa-stethoscope"></i> Profil médecin personnel</div>
+            <div class="pill"><i class="fa-solid fa-house-medical"></i> Cabinet privé ou clinique</div>
+            <div class="pill"><i class="fa-solid fa-calendar-check"></i> Planning des consultations</div>
+          </div>
+        </div>
+        <p>
+          Les cabinets proposés sont des suggestions publiques. Un médecin peut
+          saisir son propre cabinet s'il n'apparaît pas dans la liste.
+        </p>
+      </section>
+
+      <section class="form-panel">
+        <div class="tabs">
+          <button class="tab active" type="button" data-tab="login" onclick="switchTab('login')">Connexion</button>
+          <button class="tab" type="button" data-tab="register" onclick="switchTab('register')">Créer un profil</button>
+        </div>
+
+        <div id="login" class="content active">
+          <div class="message" id="loginError"></div>
+          <form onsubmit="handleDoctorLogin(event)">
+            <div class="form-group">
+              <label for="loginEmail">Email professionnel</label>
+              <input id="loginEmail" type="email" required placeholder="medecin@cabinet.ma" />
+            </div>
+            <div class="form-group">
+              <label for="loginPassword">Mot de passe</label>
+              <input id="loginPassword" type="password" required placeholder="••••••••" />
+            </div>
+            <button type="submit" class="submit-btn">Se connecter</button>
+          </form>
+          <div class="footer-link">
+            <a href="auth.html">Retour espace patient</a>
+          </div>
+        </div>
+
+        <div id="register" class="content">
+          <div class="message" id="registerError"></div>
+          <form onsubmit="handleDoctorRegister(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="name">Nom médecin</label>
+                <input id="name" type="text" required placeholder="Dr. Nom Prénom" />
+              </div>
+              <div class="form-group">
+                <label for="specialty">Spécialité</label>
+                <input id="specialty" type="text" value="Pédiatrie" required />
+              </div>
+              <div class="form-group">
+                <label for="email">Email professionnel</label>
+                <input id="email" type="email" required placeholder="medecin@cabinet.ma" />
+              </div>
+              <div class="form-group">
+                <label for="phone">Téléphone</label>
+                <input id="phone" type="tel" placeholder="+212..." />
+              </div>
+              <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input id="password" type="password" required minlength="8" placeholder="8 caractères minimum" />
+              </div>
+              <div class="form-group">
+                <label for="years">Années d'expérience</label>
+                <input id="years" type="number" min="0" placeholder="8" />
+              </div>
+              <div class="form-group full">
+                <label for="clinicName">Cabinet / clinique privée</label>
+                <input id="clinicName" list="clinicSuggestions" type="text" required placeholder="Nom du cabinet" />
+                <datalist id="clinicSuggestions"></datalist>
+              </div>
+              <div class="form-group">
+                <label for="clinicCity">Ville</label>
+                <input id="clinicCity" type="text" required placeholder="Casablanca" />
+              </div>
+              <div class="form-group">
+                <label for="clinicPhone">Téléphone cabinet</label>
+                <input id="clinicPhone" type="tel" placeholder="+212..." />
+              </div>
+              <div class="form-group full">
+                <label for="clinicAddress">Adresse cabinet</label>
+                <input id="clinicAddress" type="text" placeholder="Adresse complète" />
+              </div>
+            </div>
+            <button type="submit" class="submit-btn">Créer mon profil médecin</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const API_BASE = "http://localhost:5000/api";
+      let clinics = [];
+
+      function switchTab(tabName) {
+        document.querySelectorAll(".content").forEach((el) => el.classList.remove("active"));
+        document.querySelectorAll(".tab").forEach((el) => el.classList.remove("active"));
+        document.getElementById(tabName).classList.add("active");
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add("active");
+      }
+
+      function showError(id, message) {
+        const error = document.getElementById(id);
+        error.textContent = message;
+        error.classList.add("show", "error-message");
+      }
+
+      function saveDoctorSession(data) {
+        localStorage.setItem("doctorToken", data.token);
+        localStorage.setItem("doctor", JSON.stringify(data.doctor));
+        window.location.href = "doctor-dashboard.html";
+      }
+
+      async function handleDoctorLogin(event) {
+        event.preventDefault();
+        const response = await fetch(`${API_BASE}/doctors/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: document.getElementById("loginEmail").value,
+            password: document.getElementById("loginPassword").value,
+          }),
+        });
+        const data = await response.json();
+        if (data.error) return showError("loginError", data.error);
+        saveDoctorSession(data);
+      }
+
+      async function handleDoctorRegister(event) {
+        event.preventDefault();
+        const payload = {
+          name: document.getElementById("name").value,
+          specialty: document.getElementById("specialty").value,
+          email: document.getElementById("email").value,
+          password: document.getElementById("password").value,
+          phone: document.getElementById("phone").value,
+          years_experience: document.getElementById("years").value || null,
+          clinic_name: document.getElementById("clinicName").value,
+          clinic_city: document.getElementById("clinicCity").value,
+          clinic_phone: document.getElementById("clinicPhone").value,
+          clinic_address: document.getElementById("clinicAddress").value,
+        };
+
+        const response = await fetch(`${API_BASE}/doctors/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await response.json();
+        if (data.error) return showError("registerError", data.error);
+        saveDoctorSession(data);
+      }
+
+      async function loadClinics() {
+        try {
+          const response = await fetch(`${API_BASE}/doctors/private-clinics`);
+          clinics = await response.json();
+          const datalist = document.getElementById("clinicSuggestions");
+          datalist.innerHTML = clinics
+            .map((clinic) => `<option value="${clinic.name}">${clinic.city}</option>`)
+            .join("");
+        } catch (error) {
+          clinics = [];
+        }
+      }
+
+      document.getElementById("clinicName").addEventListener("change", (event) => {
+        const clinic = clinics.find((item) => item.name === event.target.value);
+        if (!clinic) return;
+        document.getElementById("clinicCity").value = clinic.city || "";
+        document.getElementById("clinicPhone").value = clinic.phone || "";
+        document.getElementById("clinicAddress").value = clinic.address || "";
+      });
+
+      loadClinics();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GeniDoc - Tableau de bord médecin</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --bg-page: #e8eef2;
+        --bg-app: #f7fafc;
+        --bg-card: #ffffff;
+        --text-dark: #111827;
+        --text-muted: #6b7280;
+        --border-light: #e5e7eb;
+        --primary-blue: #2b81f9;
+        --primary-orange: #f7881e;
+        --dark-btn: #0052cc;
+        --font-main: "Plus Jakarta Sans", sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font-main);
+        background:
+          radial-gradient(circle at 10% 10%, #b3d9ff 0%, transparent 35%),
+          radial-gradient(circle at 90% 10%, #c6dbea 0%, transparent 40%),
+          var(--bg-page);
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      button,
+      select,
+      input {
+        font: inherit;
+      }
+
+      .app-container {
+        width: 96vw;
+        height: 94vh;
+        background-color: var(--bg-app);
+        border-radius: 32px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        padding: 30px 40px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 25px;
+        gap: 24px;
+      }
+
+      .logo-area {
+        display: flex;
+        flex-direction: column;
+        line-height: 1;
+        margin-left: 10px;
+        min-width: 180px;
+      }
+
+      .logo-main {
+        display: flex;
+        align-items: center;
+      }
+
+      .logo-main img {
+        height: 72px;
+        width: auto;
+        object-fit: contain;
+      }
+
+      .logo-sub {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-align: right;
+        margin-top: 2px;
+        max-width: 240px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .doctor-session {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .doctor-session span {
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .doctor-session a,
+      .doctor-session button {
+        height: 42px;
+        border-radius: 30px;
+        border: 1px solid var(--border-light);
+        background: white;
+        color: var(--text-dark);
+        padding: 0 16px;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      .main-layout {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .sidebar {
+        width: 70px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+        overflow-y: auto;
+        padding-bottom: 20px;
+      }
+
+      .sidebar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .sidebar a,
+      .sidebar button {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        border: none;
+        background: white;
+        color: #9aa3af;
+        font-size: 21px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        text-decoration: none;
+        flex-shrink: 0;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+      }
+
+      .sidebar a.active,
+      .sidebar button.active {
+        background: #ffffff;
+        color: #0052cc;
+        border: 2px solid rgba(0, 82, 204, 0.18);
+        box-shadow: 0 14px 28px rgba(0, 82, 204, 0.18);
+      }
+
+      .sidebar a:hover,
+      .sidebar button:hover {
+        color: #0052cc;
+        box-shadow: 0 14px 24px rgba(15, 23, 42, 0.08);
+      }
+
+      .sidebar i {
+        line-height: 1;
+      }
+
+      .content-area {
+        flex: 1;
+        padding-left: 30px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      }
+
+      .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 30px;
+        gap: 20px;
+      }
+
+      .header-title p {
+        color: var(--text-muted);
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+
+      .header-title h1 {
+        font-size: 46px;
+        line-height: 1.05;
+        color: var(--text-dark);
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .search-box {
+        background: white;
+        border: 1px solid var(--border-light);
+        border-radius: 24px;
+        padding: 0 18px;
+        height: 48px;
+        min-width: 280px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-muted);
+      }
+
+      .search-box input {
+        border: 0;
+        outline: 0;
+        width: 100%;
+        color: var(--text-dark);
+        background: transparent;
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: minmax(300px, 0.95fr) minmax(260px, 0.8fr) minmax(320px, 1.25fr);
+        gap: 24px;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .card {
+        background: var(--bg-card);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+        border: 1px solid rgba(229, 231, 235, 0.7);
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      .card-header h3 {
+        font-size: 18px;
+        color: var(--text-dark);
+      }
+
+      .icon-btn-circle {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 1px solid var(--border-light);
+        background: white;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .tasks-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .tasks-tabs button {
+        border: 0;
+        background: #f3f4f6;
+        color: var(--text-muted);
+        border-radius: 999px;
+        padding: 9px 14px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .tasks-tabs button.active {
+        background: var(--dark-btn);
+        color: white;
+      }
+
+      .dropdown-btn {
+        width: 100%;
+        height: 46px;
+        border-radius: 16px;
+        border: 1px solid var(--border-light);
+        background: white;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 14px;
+        color: var(--text-dark);
+        font-weight: 700;
+        margin-bottom: 16px;
+      }
+
+      .dropdown-badge {
+        min-width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--primary-orange);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+
+      .task-card {
+        border-radius: 22px;
+        padding: 18px;
+        margin-bottom: 14px;
+        min-height: 146px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .task-card.orange {
+        background: #ffecd8;
+      }
+
+      .task-card.blue {
+        background: #dbeafe;
+      }
+
+      .task-check {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        color: rgba(17, 24, 39, 0.45);
+      }
+
+      .task-icon-wrapper {
+        width: 38px;
+        height: 38px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.82);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+      }
+
+      .task-card h4 {
+        font-size: 15px;
+        margin-bottom: 8px;
+        color: var(--text-dark);
+      }
+
+      .task-card p,
+      .muted {
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .metric-card {
+        display: grid;
+        gap: 12px;
+      }
+
+      .metric-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 13px 0;
+        border-bottom: 1px solid var(--border-light);
+      }
+
+      .metric-row:last-child {
+        border-bottom: 0;
+      }
+
+      .metric-row span:first-child {
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .metric-row strong {
+        font-size: 22px;
+      }
+
+      .donut-wrapper {
+        height: 190px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .donut-chart {
+        width: 148px;
+        height: 148px;
+        border-radius: 50%;
+        background: conic-gradient(var(--primary-blue) 0 42%, var(--primary-orange) 42% 70%, #e5e7eb 70% 100%);
+        position: relative;
+      }
+
+      .donut-chart::after {
+        content: "";
+        position: absolute;
+        inset: 28px;
+        border-radius: 50%;
+        background: white;
+      }
+
+      .legend-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+      }
+
+      .dot.orange {
+        background: var(--primary-orange);
+      }
+
+      .dot.blue {
+        background: var(--primary-blue);
+      }
+
+      .dot.gray {
+        background: #d1d5db;
+      }
+
+      .profile-card {
+        margin-top: 24px;
+      }
+
+      .progress-track {
+        height: 10px;
+        border-radius: 999px;
+        background: #eef2f7;
+        overflow: hidden;
+        margin-top: 14px;
+      }
+
+      .progress-fill {
+        width: 72%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-orange), var(--primary-blue));
+      }
+
+      .list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .patient-item {
+        border: 1px solid var(--border-light);
+        border-radius: 18px;
+        padding: 14px;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+        background: #eff6ff;
+        color: var(--primary-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+      }
+
+      .patient-item h4 {
+        font-size: 14px;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .badge {
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: #f3f4f6;
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .badge.pending {
+        background: #fff7ed;
+        color: #ea580c;
+      }
+
+      .badge.confirmed {
+        background: #ecfdf5;
+        color: #15803d;
+      }
+
+      .badge.cancelled {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+
+      .line-chart-area {
+        min-height: 350px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chart-legend {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 16px;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .line-chart-area svg {
+        width: 100%;
+        flex: 1;
+        min-height: 230px;
+      }
+
+      .x-axis {
+        display: flex;
+        justify-content: space-between;
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .empty,
+      .error {
+        padding: 16px;
+        border-radius: 16px;
+        background: #f8fafc;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .error {
+        background: #fef2f2;
+        color: #991b1b;
+      }
+
+      @media (max-width: 1180px) {
+        body {
+          overflow: auto;
+          height: auto;
+          min-height: 100vh;
+        }
+
+        .app-container {
+          height: auto;
+          min-height: 94vh;
+        }
+
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .app-container {
+          width: 100vw;
+          min-height: 100vh;
+          border-radius: 0;
+          padding: 20px;
+        }
+
+        .top-row,
+        .content-header {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .main-layout {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+          flex-direction: row;
+          margin-bottom: 20px;
+        }
+
+        .content-area {
+          padding-left: 0;
+        }
+
+        .search-box {
+          min-width: 0;
+          width: 100%;
+        }
+
+        .header-title h1 {
+          font-size: 36px;
+        }
+      }
+    </style>
+      <link rel="stylesheet" href="frontend/assets/identity.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <div class="top-row">
+        <div class="logo-area">
+          <div class="logo-main">
+            <img src="image.png" alt="GeniDoc" />
+          </div>
+          <div class="logo-sub" id="doctorSubtitle">Espace médecin</div>
+        </div>
+        <div class="doctor-session">
+          <span id="doctorSessionName">Médecin connecté</span>
+          <a href="doctor-auth.html" id="doctorLoginLink">Changer</a>
+          <button type="button" id="doctorLogoutBtn">Sortir</button>
+        </div>
+      </div>
+
+      <div class="main-layout">
+        <aside class="sidebar">
+          <a class="active" href="doctor-dashboard.html" title="Accueil médecin"><i class="fa-solid fa-stethoscope"></i></a>
+          <a href="#consultations" title="Consultations"><i class="fa-solid fa-calendar-check"></i></a>
+          <a href="#patients" title="Patients"><i class="fa-solid fa-hospital-user"></i></a>
+          <a href="#doctorInfo" title="Fiche médecin"><i class="fa-solid fa-id-card-clip"></i></a>
+          <button id="refreshBtn" title="Actualiser"><i class="fa-solid fa-arrows-rotate"></i></button>
+        </aside>
+
+        <main class="content-area">
+          <div class="content-header">
+            <div class="header-title">
+              <p id="doctorWelcome">Gérez et suivez vos patients</p>
+              <h1>Tableau de Bord</h1>
+            </div>
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input id="searchInput" type="text" placeholder="Rechercher un patient..." />
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="col-tasks" id="consultations">
+              <div class="card">
+                <div class="card-header">
+                  <h3>Consultations</h3>
+                  <button class="icon-btn-circle" id="refreshIconBtn" title="Actualiser">
+                    <i class="fa-solid fa-rotate"></i>
+                  </button>
+                </div>
+                <div class="tasks-tabs">
+                  <button class="active">Aujourd'hui</button>
+                  <button>À venir</button>
+                </div>
+                <button class="dropdown-btn">
+                  <span class="dropdown-badge" id="todayBadge">0</span>
+                  Consultations aujourd'hui
+                  <i class="fa-solid fa-chevron-down" style="margin-left: auto; color: #9ca3af"></i>
+                </button>
+                <div class="list" id="consultationsList">
+                  <div class="empty">Sélectionnez un médecin.</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="col-overview">
+              <div class="card">
+                <div class="card-header">
+                  <h3>Aperçu des Consultations</h3>
+                  <button class="icon-btn-circle"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                </div>
+                <div class="donut-wrapper">
+                  <div class="donut-chart"></div>
+                </div>
+                <div class="legend-row">
+                  <div><span class="dot orange"></span>En attente: <span id="pendingCount">0</span></div>
+                  <div><span class="dot blue"></span>Confirmées: <span id="confirmedCount">0</span></div>
+                </div>
+                <p class="muted" style="margin-top: 12px">
+                  <span class="dot gray"></span>
+                  Patients suivis: <span id="patientsCount">0</span>
+                </p>
+              </div>
+
+              <div class="card profile-card">
+                <div class="card-header">
+                  <h3>Fiche Médecin</h3>
+                  <button class="icon-btn-circle"><i class="fa-solid fa-ellipsis"></i></button>
+                </div>
+                <div class="metric-card" id="doctorInfo">
+                  <div class="empty">Chargement de la fiche...</div>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill"></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="col-stats" id="patients">
+              <div class="card" style="height: 100%">
+                <div class="card-header">
+                  <h3>Nouveaux Patients vs Visites</h3>
+                  <button class="icon-btn-circle"><i class="fa-solid fa-sliders"></i></button>
+                </div>
+                <div class="line-chart-area">
+                  <div class="chart-legend">
+                    <div><span class="dot blue"></span>Visites: <strong id="visitsCount">0</strong></div>
+                    <div><span class="dot orange"></span>À venir: <strong id="upcomingCount">0</strong></div>
+                  </div>
+                  <svg viewBox="0 0 500 240" preserveAspectRatio="none" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="rgba(43,129,249,0.15)" />
+                        <stop offset="100%" stop-color="rgba(43,129,249,0)" />
+                      </linearGradient>
+                      <linearGradient id="orangeGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="rgba(247,136,30,0.15)" />
+                        <stop offset="100%" stop-color="rgba(247,136,30,0)" />
+                      </linearGradient>
+                    </defs>
+                    <line x1="0" y1="40" x2="500" y2="40" stroke="#F3F4F6" stroke-width="1.5" />
+                    <line x1="0" y1="90" x2="500" y2="90" stroke="#F3F4F6" stroke-width="1.5" />
+                    <line x1="0" y1="140" x2="500" y2="140" stroke="#F3F4F6" stroke-width="1.5" />
+                    <line x1="0" y1="190" x2="500" y2="190" stroke="#F3F4F6" stroke-width="1.5" />
+                    <path d="M0,130 C40,120 60,165 105,130 C145,98 160,160 205,130 C250,96 280,105 310,150 C345,202 390,70 430,92 C465,112 485,105 500,100 L500,240 L0,240 Z" fill="url(#blueGrad)" />
+                    <path d="M0,130 C40,120 60,165 105,130 C145,98 160,160 205,130 C250,96 280,105 310,150 C345,202 390,70 430,92 C465,112 485,105 500,100" fill="none" stroke="#2B81F9" stroke-width="2.5" />
+                    <path d="M0,200 C35,190 60,178 90,184 C130,195 160,218 205,196 C250,174 280,178 315,205 C350,230 385,168 425,172 C460,176 485,188 500,186 L500,240 L0,240 Z" fill="url(#orangeGrad)" />
+                    <path d="M0,200 C35,190 60,178 90,184 C130,195 160,218 205,196 C250,174 280,178 315,205 C350,230 385,168 425,172 C460,176 485,188 500,186" fill="none" stroke="#F7881E" stroke-width="2.5" />
+                    <line x1="260" y1="20" x2="260" y2="240" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="4,4" />
+                    <circle cx="260" cy="105" r="5" fill="white" stroke="#2B81F9" stroke-width="2.5" />
+                    <circle cx="260" cy="180" r="5" fill="white" stroke="#F7881E" stroke-width="2.5" />
+                  </svg>
+                  <div class="x-axis">
+                    <span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Juin</span>
+                  </div>
+                  <div class="list" id="patientsList" style="margin-top: 18px">
+                    <div class="empty">Aucun patient chargé.</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:5000/api";
+      const consultationsList = document.getElementById("consultationsList");
+      const patientsList = document.getElementById("patientsList");
+      const doctorInfo = document.getElementById("doctorInfo");
+      const doctorToken = localStorage.getItem("doctorToken");
+      let currentDoctor = null;
+      let appointments = [];
+
+      const formatDate = (value) => {
+        if (!value) return "Date non renseignée";
+        return new Date(value).toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+      };
+
+      const normalizeDate = (value) => {
+        if (!value) return null;
+        const date = new Date(value);
+        date.setHours(0, 0, 0, 0);
+        return date;
+      };
+
+      const request = async (path, options = {}) => {
+        const response = await fetch(`${API_BASE}${path}`, {
+          ...options,
+          headers: {
+            "Content-Type": "application/json",
+            ...(doctorToken && { Authorization: `Bearer ${doctorToken}` }),
+            ...(options.headers || {}),
+          },
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(data.error || "Erreur API");
+        return data;
+      };
+
+      const statusLabel = (status) =>
+        ({ pending: "En attente", confirmed: "Confirmé", cancelled: "Annulé", completed: "Terminé" })[status] ||
+        status ||
+        "Statut inconnu";
+
+      const initialsFor = (name) =>
+        name
+          .split(" ")
+          .filter(Boolean)
+          .map((part) => part[0])
+          .join("")
+          .slice(0, 2)
+          .toUpperCase() || "P";
+
+      const setCount = (id, value) => {
+        document.getElementById(id).textContent = value;
+      };
+
+      const renderDoctor = (doctor) => {
+        if (!doctor) {
+          doctorInfo.innerHTML = '<div class="empty">Connectez-vous avec un compte médecin.</div>';
+          return;
+        }
+
+        document.getElementById("doctorSubtitle").textContent = doctor.email || "Espace médecin";
+        document.getElementById("doctorWelcome").textContent = `${doctor.name} - ${doctor.specialty || "Médecin"}`;
+        document.getElementById("doctorSessionName").textContent = doctor.name || "Médecin connecté";
+        doctorInfo.innerHTML = `
+          <div class="metric-row"><span>Nom</span><strong style="font-size:14px">${doctor.name || "Non renseigné"}</strong></div>
+          <div class="metric-row"><span>Spécialité</span><strong style="font-size:14px">${doctor.specialty || "Non renseignée"}</strong></div>
+          <div class="metric-row"><span>Email</span><strong style="font-size:14px">${doctor.email || "Non renseigné"}</strong></div>
+          <div class="metric-row"><span>Téléphone</span><strong style="font-size:14px">${doctor.phone || "Non renseigné"}</strong></div>
+        `;
+      };
+
+      const renderAppointments = () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayAppointments = appointments.filter((appointment) => {
+          const date = normalizeDate(appointment.appointment_date);
+          return date && date.getTime() === today.getTime() && appointment.status !== "cancelled";
+        });
+        const upcoming = appointments.filter((appointment) => {
+          const date = normalizeDate(appointment.appointment_date);
+          return date && date >= today && appointment.status !== "cancelled";
+        });
+        const uniquePatients = new Map();
+        appointments.forEach((appointment) => {
+          if (appointment.patient_id) uniquePatients.set(appointment.patient_id, appointment);
+        });
+
+        setCount("todayBadge", todayAppointments.length);
+        setCount("pendingCount", appointments.filter((a) => a.status === "pending").length);
+        setCount("confirmedCount", appointments.filter((a) => a.status === "confirmed").length);
+        setCount("patientsCount", uniquePatients.size);
+        setCount("visitsCount", appointments.length);
+        setCount("upcomingCount", upcoming.length);
+
+        const consultationSource = todayAppointments.length ? todayAppointments : upcoming.slice(0, 4);
+        if (!consultationSource.length) {
+          consultationsList.innerHTML = '<div class="empty">Aucune consultation trouvée.</div>';
+        } else {
+          consultationsList.innerHTML = consultationSource
+            .slice(0, 4)
+            .map((appointment, index) => {
+              const patientName = [appointment.first_name, appointment.last_name].filter(Boolean).join(" ") || "Patient";
+              return `
+                <article class="task-card ${index % 2 ? "blue" : "orange"}">
+                  <div class="task-check"><i class="fa-regular fa-circle-check"></i></div>
+                  <div class="task-icon-wrapper"><i class="fa-solid fa-user"></i></div>
+                  <h4>${patientName} - ${formatDate(appointment.appointment_date)}</h4>
+                  <p>${appointment.appointment_time || "--:--"} · ${appointment.reason || "Motif non renseigné"}<br />${appointment.email || "Email non renseigné"} · ${statusLabel(appointment.status)}</p>
+                </article>
+              `;
+            })
+            .join("");
+        }
+
+        const patientRows = Array.from(uniquePatients.values()).slice(0, 4);
+        if (!patientRows.length) {
+          patientsList.innerHTML = '<div class="empty">Aucun patient à afficher.</div>';
+          return;
+        }
+
+        patientsList.innerHTML = patientRows
+          .map((appointment) => {
+            const patientName = [appointment.first_name, appointment.last_name].filter(Boolean).join(" ") || "Patient";
+            return `
+              <article class="patient-item">
+                <div class="avatar">${initialsFor(patientName)}</div>
+                <div>
+                  <h4>${patientName}</h4>
+                  <p class="muted">${appointment.email || "Email non renseigné"}${appointment.phone ? " · " + appointment.phone : ""}</p>
+                </div>
+                <span class="badge ${appointment.status || ""}">${statusLabel(appointment.status)}</span>
+              </article>
+            `;
+          })
+          .join("");
+      };
+
+      const loadAppointments = async () => {
+        if (!currentDoctor?.id) {
+          consultationsList.innerHTML = '<div class="empty">Connectez-vous avec un compte médecin.</div>';
+          patientsList.innerHTML = '<div class="empty">Aucun patient chargé.</div>';
+          appointments = [];
+          renderAppointments();
+          return;
+        }
+
+        consultationsList.innerHTML = '<div class="empty">Chargement du planning...</div>';
+        try {
+          appointments = await request(`/appointments/doctor/${currentDoctor.id}`);
+          if (!Array.isArray(appointments)) appointments = [];
+          renderAppointments();
+        } catch (error) {
+          consultationsList.innerHTML = '<div class="error">Impossible de charger les consultations.</div>';
+        }
+      };
+
+      const loadDoctorProfile = async () => {
+        if (!doctorToken) {
+          window.location.href = "doctor-auth.html";
+          return;
+        }
+
+        try {
+          currentDoctor = await request("/doctors/profile");
+          localStorage.setItem("doctor", JSON.stringify(currentDoctor));
+          renderDoctor(currentDoctor);
+          await loadAppointments();
+        } catch (error) {
+          localStorage.removeItem("doctorToken");
+          localStorage.removeItem("doctor");
+          window.location.href = "doctor-auth.html";
+        }
+      };
+
+      document.getElementById("refreshBtn").addEventListener("click", loadAppointments);
+      document.getElementById("refreshIconBtn").addEventListener("click", loadAppointments);
+      document.getElementById("doctorLogoutBtn").addEventListener("click", () => {
+        localStorage.removeItem("doctorToken");
+        localStorage.removeItem("doctor");
+        window.location.href = "doctor-auth.html";
+      });
+      loadDoctorProfile();
+    </script>
+  </body>
+</html>

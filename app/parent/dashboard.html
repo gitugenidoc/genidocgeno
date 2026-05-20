@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portail parent - GeniDoc Hayat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/app/css/dashboard.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/">
+          <img src="/image.png" alt="GeniDoc Hayat" />
+          <span><strong>GeniDoc Hayat</strong><small>Portail parent</small></span>
+        </a>
+        <div class="nav-actions">
+          <button type="button" onclick="logout()">Déconnexion</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <p>Parent</p>
+        <h1>Compléter les informations santé de vos enfants.</h1>
+        <span>Les enfants apparaissent quand l’école vous ajoute comme tuteur avec l’email de votre compte parent.</span>
+      </section>
+
+      <section class="grid" id="childrenGrid"></section>
+
+      <section class="panel" id="emptyPanel" style="display:none">
+        <div class="panel-head">
+          <div>
+            <h2>Aucun enfant lié</h2>
+            <p>Demandez à l’école d’ajouter votre email parent dans les tuteurs de l’élève.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="childPanel" style="display:none">
+        <div class="panel-head">
+          <div>
+            <h2 id="selectedChildName">Fiche enfant</h2>
+            <p id="selectedChildMeta"></p>
+          </div>
+        </div>
+        <div class="message" id="healthMessage"></div>
+        <form id="healthForm">
+          <div class="form-grid">
+            <div class="field"><label>Groupe sanguin</label><input id="bloodType" placeholder="O+" /></div>
+            <div class="field"><label>Médecin traitant</label><input id="doctorName" /></div>
+            <div class="field"><label>Téléphone médecin</label><input id="doctorPhone" /></div>
+            <div class="field full"><label>Cabinet / clinique</label><input id="doctorClinic" /></div>
+            <div class="field full"><label>Traitement régulier</label><textarea id="regularTreatment"></textarea></div>
+            <div class="field full"><label>Régime alimentaire médical</label><textarea id="medicalDiet"></textarea></div>
+            <div class="field full"><label>Protocole urgence</label><textarea id="emergencyProtocol"></textarea></div>
+            <div class="field full"><label>Notes critiques</label><textarea id="criticalNotes"></textarea></div>
+          </div>
+
+          <div class="detail-grid">
+            <div class="panel">
+              <h2>Allergies</h2>
+              <div class="form-grid">
+                <div class="field"><label>Allergène</label><input id="allergyName" /></div>
+                <div class="field"><label>Sévérité</label><select id="allergySeverity"><option>faible</option><option>modérée</option><option>sévère</option></select></div>
+                <div class="field"><label>Réaction</label><input id="allergyReaction" /></div>
+                <div class="field full"><button type="button" onclick="addAllergy()">Ajouter</button></div>
+              </div>
+              <div id="allergiesList" class="muted"></div>
+            </div>
+            <div class="panel">
+              <h2>Conditions</h2>
+              <div class="form-grid">
+                <div class="field"><label>Condition</label><input id="conditionName" placeholder="Asthme" /></div>
+                <div class="field"><label>Sévérité</label><select id="conditionSeverity"><option>faible</option><option>modérée</option><option>sévère</option></select></div>
+                <div class="field"><label>Note</label><input id="conditionNotes" /></div>
+                <div class="field full"><button type="button" onclick="addCondition()">Ajouter</button></div>
+              </div>
+              <div id="conditionsList" class="muted"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Traitements</h2>
+            <div class="form-grid">
+              <div class="field"><label>Médicament</label><input id="medicationName" /></div>
+              <div class="field"><label>Dosage</label><input id="medicationDosage" /></div>
+              <div class="field"><label>Fréquence</label><input id="medicationFrequency" /></div>
+              <div class="field full"><button type="button" onclick="addMedication()">Ajouter</button></div>
+            </div>
+            <div id="medicationsList" class="muted"></div>
+          </div>
+
+          <button class="primary" type="submit">Enregistrer la fiche santé</button>
+        </form>
+      </section>
+
+      <section class="panel" id="authorizationsPanel" style="display:none">
+        <div class="panel-head">
+          <div>
+            <h2>Autorisations parentales</h2>
+            <p>Ces autorisations préparent les workflows documents et incidents.</p>
+          </div>
+        </div>
+        <div class="message" id="authorizationMessage"></div>
+        <form id="authorizationForm">
+          <div class="form-grid">
+            <label><input id="emergencyCare" type="checkbox" /> Soins d’urgence autorisés</label>
+            <label><input id="medicationAuthorized" type="checkbox" /> Administration médicament autorisée</label>
+            <label><input id="schoolTrip" type="checkbox" /> Sorties scolaires autorisées</label>
+            <label><input id="medicalInfoSharing" type="checkbox" /> Partage infos santé avec personnel autorisé</label>
+            <div class="field full"><label>Notes</label><textarea id="authorizationNotes"></textarea></div>
+          </div>
+          <button class="primary" type="submit">Enregistrer les autorisations</button>
+        </form>
+      </section>
+
+      <section class="panel" id="documentsPanel" style="display:none">
+        <div class="panel-head">
+          <div>
+            <h2>Documents</h2>
+            <p>Ajoutez certificats, carnet de vaccination ou autorisations. Les fichiers sont stockés chiffrés.</p>
+          </div>
+        </div>
+        <div class="message" id="documentMessage"></div>
+        <form class="form-grid" id="documentForm">
+          <div class="field">
+            <label>Type</label>
+            <select id="documentType">
+              <option value="certificat">Certificat</option>
+              <option value="vaccination">Carnet vaccination</option>
+              <option value="ordonnance">Ordonnance</option>
+              <option value="autorisation">Autorisation</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+          <div class="field"><label>Titre</label><input id="documentTitle" /></div>
+          <div class="field"><label>Fichier</label><input id="documentFile" type="file" required /></div>
+          <div class="field full"><button class="primary" type="submit">Ajouter document</button></div>
+        </form>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Document</th><th>Type</th><th>Taille</th><th></th></tr></thead>
+            <tbody id="documentsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app/js/session.js"></script>
+    <script>
+      let children = [];
+      let selectedChild = null;
+      let allergies = [];
+      let conditions = [];
+      let medications = [];
+
+      function message(id, type, text) {
+        const box = document.getElementById(id);
+        box.textContent = text;
+        box.className = `message show ${type}`;
+      }
+
+      function list(items, render) {
+        return items.length ? items.map(render).join("") : `<p class="muted">Aucune donnée.</p>`;
+      }
+
+      function readFileAsBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result).split(",")[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function renderChildren() {
+        document.getElementById("emptyPanel").style.display = children.length ? "none" : "block";
+        document.getElementById("childrenGrid").innerHTML = children.map((child) => `
+          <article>
+            <strong>${child.first_name} ${child.last_name}</strong>
+            <span>${child.school_name}<br>${child.class_name || "Sans classe"}</span>
+            <br><button type="button" onclick="selectChild(${child.id})">Ouvrir</button>
+          </article>
+        `).join("");
+      }
+
+      function renderHealthLists() {
+        document.getElementById("allergiesList").innerHTML = list(allergies, (item, index) =>
+          `<p><strong>${item.allergen}</strong> · ${item.severity}<br>${item.reaction || ""} <button type="button" onclick="removeAllergy(${index})">Retirer</button></p><br>`,
+        );
+        document.getElementById("conditionsList").innerHTML = list(conditions, (item, index) =>
+          `<p><strong>${item.condition_name}</strong> · ${item.severity}<br>${item.notes || ""} <button type="button" onclick="removeCondition(${index})">Retirer</button></p><br>`,
+        );
+        document.getElementById("medicationsList").innerHTML = list(medications, (item, index) =>
+          `<p><strong>${item.medication_name}</strong><br>${item.dosage || "-"} · ${item.frequency || "-"} <button type="button" onclick="removeMedication(${index})">Retirer</button></p><br>`,
+        );
+      }
+
+      function addAllergy() {
+        const allergen = document.getElementById("allergyName").value.trim();
+        if (!allergen) return;
+        allergies.push({
+          allergen,
+          severity: document.getElementById("allergySeverity").value,
+          reaction: document.getElementById("allergyReaction").value.trim(),
+        });
+        document.getElementById("allergyName").value = "";
+        document.getElementById("allergyReaction").value = "";
+        renderHealthLists();
+      }
+
+      function addCondition() {
+        const conditionName = document.getElementById("conditionName").value.trim();
+        if (!conditionName) return;
+        conditions.push({
+          condition_name: conditionName,
+          severity: document.getElementById("conditionSeverity").value,
+          notes: document.getElementById("conditionNotes").value.trim(),
+        });
+        document.getElementById("conditionName").value = "";
+        document.getElementById("conditionNotes").value = "";
+        renderHealthLists();
+      }
+
+      function addMedication() {
+        const medicationName = document.getElementById("medicationName").value.trim();
+        if (!medicationName) return;
+        medications.push({
+          medication_name: medicationName,
+          dosage: document.getElementById("medicationDosage").value.trim(),
+          frequency: document.getElementById("medicationFrequency").value.trim(),
+        });
+        document.getElementById("medicationName").value = "";
+        document.getElementById("medicationDosage").value = "";
+        document.getElementById("medicationFrequency").value = "";
+        renderHealthLists();
+      }
+
+      function removeAllergy(index) {
+        allergies.splice(index, 1);
+        renderHealthLists();
+      }
+
+      function removeCondition(index) {
+        conditions.splice(index, 1);
+        renderHealthLists();
+      }
+
+      function removeMedication(index) {
+        medications.splice(index, 1);
+        renderHealthLists();
+      }
+
+      async function selectChild(childId) {
+        const health = await apiRequest(`/parent/children/${childId}/health-profile`);
+        selectedChild = health.child;
+        document.getElementById("childPanel").style.display = "block";
+        document.getElementById("authorizationsPanel").style.display = "block";
+        document.getElementById("documentsPanel").style.display = "block";
+        document.getElementById("selectedChildName").textContent = `${selectedChild.first_name} ${selectedChild.last_name}`;
+        document.getElementById("selectedChildMeta").textContent =
+          `${selectedChild.school_name} · ${selectedChild.class_name || "Sans classe"}`;
+
+        const p = health.profile || {};
+        document.getElementById("bloodType").value = p.blood_type || "";
+        document.getElementById("doctorName").value = p.treating_doctor_name || "";
+        document.getElementById("doctorPhone").value = p.treating_doctor_phone || "";
+        document.getElementById("doctorClinic").value = p.treating_doctor_clinic || "";
+        document.getElementById("regularTreatment").value = p.regular_treatment || "";
+        document.getElementById("medicalDiet").value = p.medical_diet || "";
+        document.getElementById("emergencyProtocol").value = p.emergency_protocol || "";
+        document.getElementById("criticalNotes").value = p.critical_notes || "";
+        allergies = health.allergies || [];
+        conditions = health.conditions || [];
+        medications = health.medications || [];
+        renderHealthLists();
+
+        const auth = await apiRequest(`/parent/children/${childId}/authorizations`);
+        const a = auth.authorizations || {};
+        document.getElementById("emergencyCare").checked = Boolean(a.emergency_care_authorized);
+        document.getElementById("medicationAuthorized").checked = Boolean(a.medication_authorized);
+        document.getElementById("schoolTrip").checked = Boolean(a.school_trip_authorized);
+        document.getElementById("medicalInfoSharing").checked = Boolean(a.medical_info_sharing_authorized);
+        document.getElementById("authorizationNotes").value = a.notes || "";
+        await loadDocuments();
+      }
+
+      async function loadDocuments() {
+        const data = await apiRequest(`/parent/children/${selectedChild.id}/documents`);
+        document.getElementById("documentsBody").innerHTML = data.documents.map((doc) => `
+          <tr>
+            <td><strong>${doc.title}</strong><br><span class="muted">${doc.original_filename}</span></td>
+            <td>${doc.document_type}</td>
+            <td>${Math.round(doc.file_size / 1024)} Ko</td>
+            <td><a class="link-btn" href="/api/documents/${doc.id}/download">Télécharger</a></td>
+          </tr>
+        `).join("") || `<tr><td colspan="4" class="muted">Aucun document.</td></tr>`;
+      }
+
+      document.getElementById("healthForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await apiRequest(`/parent/children/${selectedChild.id}/health-profile`, {
+            method: "PUT",
+            body: JSON.stringify({
+              blood_type: document.getElementById("bloodType").value.trim(),
+              treating_doctor_name: document.getElementById("doctorName").value.trim(),
+              treating_doctor_phone: document.getElementById("doctorPhone").value.trim(),
+              treating_doctor_clinic: document.getElementById("doctorClinic").value.trim(),
+              regular_treatment: document.getElementById("regularTreatment").value.trim(),
+              medical_diet: document.getElementById("medicalDiet").value.trim(),
+              emergency_protocol: document.getElementById("emergencyProtocol").value.trim(),
+              critical_notes: document.getElementById("criticalNotes").value.trim(),
+              allergies,
+              conditions,
+              medications,
+              note: "Mise à jour parent",
+            }),
+          });
+          message("healthMessage", "success", "Fiche santé enregistrée.");
+          await selectChild(selectedChild.id);
+        } catch (error) {
+          message("healthMessage", "error", error.message);
+        }
+      });
+
+      document.getElementById("authorizationForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await apiRequest(`/parent/children/${selectedChild.id}/authorizations`, {
+            method: "PUT",
+            body: JSON.stringify({
+              emergency_care_authorized: document.getElementById("emergencyCare").checked,
+              medication_authorized: document.getElementById("medicationAuthorized").checked,
+              school_trip_authorized: document.getElementById("schoolTrip").checked,
+              medical_info_sharing_authorized: document.getElementById("medicalInfoSharing").checked,
+              notes: document.getElementById("authorizationNotes").value.trim(),
+            }),
+          });
+          message("authorizationMessage", "success", "Autorisations enregistrées.");
+        } catch (error) {
+          message("authorizationMessage", "error", error.message);
+        }
+      });
+
+      document.getElementById("documentForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const file = document.getElementById("documentFile").files[0];
+        if (!file) return;
+        try {
+          await apiRequest(`/parent/children/${selectedChild.id}/documents`, {
+            method: "POST",
+            body: JSON.stringify({
+              document_type: document.getElementById("documentType").value,
+              title: document.getElementById("documentTitle").value.trim() || file.name,
+              filename: file.name,
+              mime_type: file.type || "application/octet-stream",
+              content_base64: await readFileAsBase64(file),
+            }),
+          });
+          event.target.reset();
+          message("documentMessage", "success", "Document ajouté.");
+          await loadDocuments();
+        } catch (error) {
+          message("documentMessage", "error", error.message);
+        }
+      });
+
+      async function init() {
+        const user = await requireAuth(["PARENT"]);
+        if (!user) return;
+        const data = await apiRequest("/parent/children");
+        children = data.children;
+        renderChildren();
+        if (children[0]) await selectChild(children[0].id);
+      }
+
+      init();
+    </script>
+  </body>
+</html>

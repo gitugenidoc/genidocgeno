@@ -1,0 +1,10 @@
+{
+  "appId": "ma.genidoc.hayat",
+  "appName": "GeniDoc Hayat",
+  "webDir": "mobile-www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "https"
+  }
+}

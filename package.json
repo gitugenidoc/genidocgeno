@@ -1,0 +1,37 @@
+{
+  "name": "genidoc-school-health",
+  "version": "1.0.0",
+  "description": "GeniDoc Hayat School Health - fiches sante scolaires, portail parent, QR urgence et audit",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "db:init": "psql -U postgres -f db/schema.sql",
+    "db:init:auth": "node backend/scripts/initAuthSchema.js",
+    "db:init:school": "node backend/scripts/initSchoolSchema.js",
+    "db:init:production": "node backend/scripts/initProductionSchema.js",
+    "bootstrap:admin": "node backend/scripts/bootstrapAdmin.js",
+    "demo:purge": "node backend/scripts/purgeDemoData.js",
+    "backup:pg": "node backend/scripts/backupPostgres.js",
+    "mobile:sync-assets": "node scripts/syncMobileAssets.js",
+    "mobile:sync": "npm run mobile:sync-assets && npx cap sync",
+    "mobile:android": "npm run mobile:sync-assets && npx cap open android",
+    "mobile:ios": "npm run mobile:sync-assets && npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/cli": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/ios": "^8.3.4",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.3",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

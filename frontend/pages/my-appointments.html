@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mes RDVs - GeniDoc</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-blue: #0052cc;
+        --primary-blue-dark: #003a99;
+        --primary-blue-light: #e6f0ff;
+        --bg-secondary: #f9fafc;
+        --text-dark: #111827;
+        --text-muted: #6b7280;
+        --border-light: #e5e7eb;
+        --font-main: "Plus Jakarta Sans", sans-serif;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font-main);
+        background: linear-gradient(
+          135deg,
+          #ffffff 0%,
+          var(--primary-blue-light) 100%
+        );
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+      }
+
+      .logo-img {
+        width: 120px;
+        height: auto;
+      }
+
+      h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-dark);
+      }
+
+      .nav-buttons {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 32px;
+      }
+
+      .button {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: var(--font-main);
+      }
+
+      .button-primary {
+        background-color: var(--primary-blue);
+        color: white;
+      }
+
+      .button-primary:hover {
+        background-color: var(--primary-blue-dark);
+      }
+
+      .button-secondary {
+        background-color: var(--bg-secondary);
+        color: var(--text-dark);
+        border: 1px solid var(--border-light);
+      }
+
+      .button-secondary:hover {
+        background-color: var(--border-light);
+      }
+
+      .card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 82, 204, 0.1);
+        padding: 32px;
+        margin-bottom: 24px;
+      }
+
+      .appointments-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .appointment-card {
+        border: 2px solid var(--border-light);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s;
+      }
+
+      .appointment-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 82, 204, 0.1);
+      }
+
+      .appointment-status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+      }
+
+      .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+      }
+
+      .status-confirmed {
+        background-color: #d1fae5;
+        color: #065f46;
+      }
+
+      .status-completed {
+        background-color: #dbeafe;
+        color: #1e40af;
+      }
+
+      .status-cancelled {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+
+      .appointment-date {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--primary-blue);
+        margin-bottom: 8px;
+      }
+
+      .appointment-time {
+        font-size: 14px;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+      }
+
+      .appointment-doctor {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 4px;
+      }
+
+      .appointment-specialty {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+      }
+
+      .appointment-reason {
+        font-size: 12px;
+        color: var(--text-muted);
+        padding: 12px;
+        background-color: var(--bg-secondary);
+        border-radius: 8px;
+        margin-bottom: 16px;
+      }
+
+      .appointment-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn-small {
+        flex: 1;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: var(--font-main);
+      }
+
+      .btn-confirm {
+        background-color: var(--success);
+        color: white;
+      }
+
+      .btn-confirm:hover {
+        background-color: #059669;
+      }
+
+      .btn-cancel {
+        background-color: var(--danger);
+        color: white;
+      }
+
+      .btn-cancel:hover {
+        background-color: #dc2626;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-muted);
+      }
+
+      .spinner {
+        border: 3px solid var(--border-light);
+        border-top: 3px solid var(--primary-blue);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        margin-right: 8px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-muted);
+      }
+
+      .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+      }
+
+      .empty-state-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+      }
+
+      .notification {
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .notification.show {
+        display: block;
+      }
+
+      .notification-success {
+        background-color: #d1fae5;
+        color: #065f46;
+      }
+
+      .notification-error {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+
+      @media (max-width: 768px) {
+        .appointments-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .nav-buttons {
+          flex-direction: column;
+        }
+
+        .nav-buttons .button {
+          width: 100%;
+        }
+      }
+    </style>
+      <link rel="stylesheet" href="../assets/identity.css" />
+  </head>
+  <body>
+    <div class="patient-shell">
+      <aside class="patient-sidebar">
+        <a href="../../f.html" title="Tableau de bord"><i class="fa-solid fa-table-columns"></i></a>
+        <a href="appointments.html" title="Prendre RDV"><i class="fa-solid fa-calendar-days"></i></a>
+        <a class="active" href="my-appointments.html" title="Mes RDV"><i class="fa-solid fa-clipboard-check"></i></a>
+        <a href="medical-record.html" title="Dossier médical"><i class="fa-solid fa-notes-medical"></i></a>
+        <a href="../../profile.html" title="Profil"><i class="fa-solid fa-circle-user"></i></a>
+      </aside>
+      <div class="container">
+      <div class="header">
+        <h1>📅 Mes RDVs</h1>
+        <img src="../../image.png" alt="GeniDoc" class="logo-img" />
+      </div>
+
+      <div class="nav-buttons">
+        <button
+          class="button button-primary"
+          onclick="window.location.href = 'appointments.html'"
+        >
+          + Nouveau RDV
+        </button>
+        <button
+          class="button button-secondary"
+          onclick="window.location.href = 'medical-record.html'"
+        >
+          Dossier Médical
+        </button>
+      </div>
+
+      <div id="notification" class="notification"></div>
+
+      <div class="card">
+        <div class="appointments-grid" id="appointmentsList">
+          <div class="loading">
+            <div class="spinner"></div>
+            Chargement de vos RDVs...
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <script src="../assets/api.js"></script>
+    <script>
+      // Charger les RDVs
+      async function loadAppointments() {
+        try {
+          const appointments = await api.getMyAppointments();
+          const list = document.getElementById("appointmentsList");
+
+          if (appointments.error || appointments.length === 0) {
+            list.innerHTML = `
+            <div class="empty-state" style="grid-column: 1/-1;">
+              <div class="empty-state-icon">📅</div>
+              <div class="empty-state-title">Aucun RDV prévu</div>
+              <p>Vous n'avez pas encore de rendez-vous. Cliquez sur "Nouveau RDV" pour en prendre un.</p>
+            </div>
+          `;
+            return;
+          }
+
+          list.innerHTML = appointments
+            .map(
+              (apt) => `
+          <div class="appointment-card">
+            <div class="appointment-status status-${apt.status}">
+              ${
+                apt.status === "pending"
+                  ? "⏳ En attente"
+                  : apt.status === "confirmed"
+                    ? "✅ Confirmé"
+                    : apt.status === "completed"
+                      ? "✓ Réalisé"
+                      : "❌ Annulé"
+              }
+            </div>
+            
+            <div class="appointment-date">${new Date(apt.appointment_date).toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</div>
+            <div class="appointment-time">🕐 ${apt.appointment_time}</div>
+            
+            <div class="appointment-doctor">Dr. ${apt.doctor_name}</div>
+            <div class="appointment-specialty">${apt.specialty}</div>
+            
+            ${apt.reason ? `<div class="appointment-reason">${apt.reason}</div>` : ""}
+            
+            <div class="appointment-actions">
+              ${
+                apt.status === "pending"
+                  ? `
+                <button class="btn-small btn-confirm" onclick="confirmAppointment(${apt.id})">Confirmer</button>
+                <button class="btn-small btn-cancel" onclick="cancelAppointment(${apt.id})">Annuler</button>
+              `
+                  : ""
+              }
+              ${apt.status === "cancelled" ? `<p style="font-size: 12px; color: var(--text-muted); text-align: center; width: 100%;">RDV annulé</p>` : ""}
+              ${apt.status === "completed" ? `<a href="medical-record.html" style="color: var(--primary-blue); text-decoration: none; font-weight: 600; font-size: 12px; text-align: center; width: 100%;">Voir dossier</a>` : ""}
+            </div>
+          </div>
+        `,
+            )
+            .join("");
+        } catch (error) {
+          showNotification("Erreur lors du chargement", "error");
+        }
+      }
+
+      // Confirmer RDV
+      async function confirmAppointment(id) {
+        if (!confirm("Confirmer ce rendez-vous?")) return;
+
+        try {
+          const result = await api.confirmAppointment(id);
+          if (result.error) {
+            showNotification("Erreur: " + result.error, "error");
+          } else {
+            showNotification("✅ RDV confirmé!", "success");
+            setTimeout(loadAppointments, 1000);
+          }
+        } catch (error) {
+          showNotification("Erreur", "error");
+        }
+      }
+
+      // Annuler RDV
+      async function cancelAppointment(id) {
+        if (!confirm("Confirmer l'annulation?")) return;
+
+        try {
+          const result = await api.cancelAppointment(id);
+          if (result.error) {
+            showNotification("Erreur: " + result.error, "error");
+          } else {
+            showNotification("❌ RDV annulé", "success");
+            setTimeout(loadAppointments, 1000);
+          }
+        } catch (error) {
+          showNotification("Erreur", "error");
+        }
+      }
+
+      function showNotification(msg, type) {
+        const el = document.getElementById("notification");
+        el.textContent = msg;
+        el.className = `notification notification-${type} show`;
+        setTimeout(() => el.classList.remove("show"), 3000);
+      }
+
+      // Init
+      window.addEventListener("DOMContentLoaded", () => {
+        if (!api.getToken()) {
+          window.location.href = "../auth.html";
+          return;
+        }
+        loadAppointments();
+      });
+    </script>
+  </body>
+</html>

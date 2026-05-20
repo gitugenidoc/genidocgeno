@@ -1,0 +1,1324 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GeniDoc - Tableau de bord patient</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --bg-page: #e8eef2;
+        --bg-app: #f7fafc;
+        --bg-card: #ffffff;
+        --text-dark: #111827;
+        --text-muted: #6b7280;
+        --border-light: #e5e7eb;
+        --primary-blue: #2b81f9;
+        --primary-orange: #f7881e;
+        --dark-btn: #0052cc;
+        --font-main: "Plus Jakarta Sans", sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font-main);
+        background:
+          radial-gradient(circle at 10% 10%, #b3d9ff 0%, transparent 35%),
+          radial-gradient(circle at 90% 10%, #c6dbea 0%, transparent 40%),
+          var(--bg-page);
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .app-container {
+        width: 96vw;
+        height: 94vh;
+        background-color: var(--bg-app);
+        border-radius: 32px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        padding: 30px 40px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 25px;
+        gap: 24px;
+      }
+
+      .logo-area {
+        display: flex;
+        flex-direction: column;
+        line-height: 1;
+        margin-left: 10px;
+        min-width: 180px;
+      }
+
+      .logo-main {
+        display: flex;
+        align-items: center;
+      }
+
+      .logo-main img {
+        height: 72px;
+        width: auto;
+        object-fit: contain;
+      }
+
+      .logo-sub {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-align: right;
+        margin-top: 2px;
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .time-filters {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .time-filters button {
+        padding: 10px 22px;
+        border-radius: 30px;
+        border: 1px solid var(--border-light);
+        background: transparent;
+        color: var(--text-dark);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+
+      .time-filters button.active {
+        background: var(--dark-btn);
+        color: white;
+        border-color: var(--dark-btn);
+      }
+
+      .main-layout {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .sidebar {
+        width: 70px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+        overflow-y: auto;
+        padding-bottom: 20px;
+      }
+
+      .sidebar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .sidebar a,
+      .sidebar button {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        border: none;
+        background: white;
+        color: #9aa3af;
+        font-size: 21px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        text-decoration: none;
+        flex-shrink: 0;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+      }
+
+      .sidebar a.active,
+      .sidebar button.active {
+        background: #ffffff;
+        color: #0052cc;
+        border: 2px solid rgba(0, 82, 204, 0.18);
+        box-shadow: 0 14px 28px rgba(0, 82, 204, 0.18);
+      }
+
+      .sidebar a:hover,
+      .sidebar button:hover {
+        color: #0052cc;
+        box-shadow: 0 14px 24px rgba(15, 23, 42, 0.08);
+      }
+
+      .sidebar i {
+        line-height: 1;
+      }
+
+      .content-area {
+        flex: 1;
+        padding-left: 30px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      }
+
+      .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 30px;
+        gap: 20px;
+      }
+
+      .header-title p {
+        color: var(--text-muted);
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+
+      .header-title h1 {
+        font-size: 46px;
+        line-height: 1.05;
+        color: var(--text-dark);
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .search-box {
+        background: white;
+        border: 1px solid var(--border-light);
+        border-radius: 24px;
+        padding: 0 18px;
+        height: 48px;
+        min-width: 280px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-muted);
+      }
+
+      .search-box input {
+        border: 0;
+        outline: 0;
+        width: 100%;
+        color: var(--text-dark);
+        background: transparent;
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: minmax(280px, 0.95fr) minmax(260px, 0.8fr) minmax(320px, 1.25fr);
+        gap: 24px;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .card {
+        background: var(--bg-card);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+        border: 1px solid rgba(229, 231, 235, 0.7);
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      .card-header h3 {
+        font-size: 18px;
+        color: var(--text-dark);
+      }
+
+      .icon-btn-circle {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 1px solid var(--border-light);
+        background: white;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .tasks-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .tasks-tabs button {
+        border: 0;
+        background: #f3f4f6;
+        color: var(--text-muted);
+        border-radius: 999px;
+        padding: 9px 14px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .tasks-tabs button.active {
+        background: var(--dark-btn);
+        color: white;
+      }
+
+      .dropdown-btn {
+        width: 100%;
+        height: 46px;
+        border-radius: 16px;
+        border: 1px solid var(--border-light);
+        background: white;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 14px;
+        color: var(--text-dark);
+        font-weight: 700;
+        margin-bottom: 16px;
+      }
+
+      .dropdown-badge {
+        min-width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--primary-orange);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+
+      .task-card {
+        border-radius: 22px;
+        padding: 18px;
+        margin-bottom: 14px;
+        min-height: 146px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .task-card.orange {
+        background: #ffecd8;
+      }
+
+      .task-card.blue {
+        background: #dbeafe;
+      }
+
+      .task-check {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        color: rgba(17, 24, 39, 0.45);
+      }
+
+      .task-icon-wrapper {
+        width: 38px;
+        height: 38px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.82);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+      }
+
+      .task-card h4 {
+        font-size: 15px;
+        margin-bottom: 8px;
+        color: var(--text-dark);
+      }
+
+      .task-card p,
+      .muted {
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .metric-card {
+        display: grid;
+        gap: 12px;
+      }
+
+      .metric-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 13px 0;
+        border-bottom: 1px solid var(--border-light);
+      }
+
+      .metric-row:last-child {
+        border-bottom: 0;
+      }
+
+      .metric-row span:first-child {
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .metric-row strong {
+        font-size: 22px;
+      }
+
+      .donut-wrapper {
+        height: 190px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .donut-chart {
+        width: 148px;
+        height: 148px;
+        border-radius: 50%;
+        background: conic-gradient(var(--primary-blue) 0 42%, var(--primary-orange) 42% 70%, #e5e7eb 70% 100%);
+        position: relative;
+      }
+
+      .donut-chart::after {
+        content: "";
+        position: absolute;
+        inset: 28px;
+        border-radius: 50%;
+        background: white;
+      }
+
+      .legend-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+      }
+
+      .dot.orange {
+        background: var(--primary-orange);
+      }
+
+      .dot.blue {
+        background: var(--primary-blue);
+      }
+
+      .dot.gray {
+        background: #d1d5db;
+      }
+
+      .profile-card {
+        margin-top: 24px;
+      }
+
+      .progress-track {
+        height: 10px;
+        border-radius: 999px;
+        background: #eef2f7;
+        overflow: hidden;
+        margin-top: 14px;
+      }
+
+      .progress-fill {
+        width: 64%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-orange), var(--primary-blue));
+      }
+
+      .list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .appointment-item,
+      .record-item {
+        border: 1px solid var(--border-light);
+        border-radius: 18px;
+        padding: 14px;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .item-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+        background: #eff6ff;
+        color: var(--primary-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .appointment-item h4,
+      .record-item h4 {
+        font-size: 14px;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .badge {
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: #f3f4f6;
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .badge.pending {
+        background: #fff7ed;
+        color: #ea580c;
+      }
+
+      .badge.confirmed {
+        background: #ecfdf5;
+        color: #15803d;
+      }
+
+      .badge.cancelled {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+
+      .line-chart-area {
+        min-height: 350px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .view-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 18px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+
+      .form-group.full {
+        grid-column: 1 / -1;
+      }
+
+      .form-group label {
+        color: var(--text-dark);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        min-height: 44px;
+        border: 1px solid var(--border-light);
+        border-radius: 16px;
+        background: #fff;
+        color: var(--text-dark);
+        padding: 0 14px;
+        font: inherit;
+      }
+
+      .form-group textarea {
+        min-height: 110px;
+        padding-top: 12px;
+        resize: vertical;
+      }
+
+      .primary-action {
+        min-height: 46px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--dark-btn);
+        color: white;
+        font-weight: 800;
+        padding: 0 18px;
+        cursor: pointer;
+      }
+
+      .secondary-action {
+        min-height: 46px;
+        border: 1px solid var(--border-light);
+        border-radius: 999px;
+        background: white;
+        color: var(--text-dark);
+        font-weight: 800;
+        padding: 0 18px;
+        cursor: pointer;
+      }
+
+      .doctor-card,
+      .appointment-card-lite,
+      .record-card-lite {
+        border: 1px solid var(--border-light);
+        border-radius: 18px;
+        padding: 16px;
+        background: white;
+        cursor: pointer;
+      }
+
+      .doctor-card.selected {
+        border-color: var(--primary-blue);
+        box-shadow: 0 10px 24px rgba(43, 129, 249, 0.12);
+      }
+
+      .doctor-card h4,
+      .appointment-card-lite h4,
+      .record-card-lite h4 {
+        margin-bottom: 6px;
+      }
+
+      .chart-legend {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 16px;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .line-chart-area svg {
+        width: 100%;
+        flex: 1;
+        min-height: 230px;
+      }
+
+      .x-axis {
+        display: flex;
+        justify-content: space-between;
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .empty,
+      .error {
+        padding: 16px;
+        border-radius: 16px;
+        background: #f8fafc;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .error {
+        background: #fef2f2;
+        color: #991b1b;
+      }
+
+      @media (max-width: 1180px) {
+        body {
+          overflow: auto;
+          height: auto;
+          min-height: 100vh;
+        }
+
+        .app-container {
+          height: auto;
+          min-height: 94vh;
+        }
+
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .app-container {
+          width: 100vw;
+          min-height: 100vh;
+          border-radius: 0;
+          padding: 20px;
+        }
+
+        .top-row,
+        .content-header {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .main-layout {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+          flex-direction: row;
+          margin-bottom: 20px;
+        }
+
+        .content-area {
+          padding-left: 0;
+        }
+
+        .search-box {
+          min-width: 0;
+        }
+
+        .header-title h1 {
+          font-size: 36px;
+        }
+      }
+    </style>
+      <link rel="stylesheet" href="frontend/assets/identity.css" />
+      <script src="/mobile-config.js"></script>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#123b64" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="GeniDoc Hayat" />
+  </head>
+  <body>
+    <div class="app-container">
+      <div class="top-row">
+        <div class="logo-area">
+          <div class="logo-main">
+            <img src="image.png" alt="GeniDoc" />
+          </div>
+          <div class="logo-sub" id="userEmail">Espace patient</div>
+        </div>
+        <div class="time-filters">
+          <button class="active">Aujourd'hui</button>
+          <button>Semaine</button>
+          <button>Mois</button>
+        </div>
+      </div>
+
+      <div class="main-layout">
+        <aside class="sidebar">
+          <button class="active" type="button" data-view="home" title="Tableau de bord"><i class="fa-solid fa-table-columns"></i></button>
+          <button type="button" data-view="book" title="Prendre RDV"><i class="fa-solid fa-calendar-days"></i></button>
+          <button type="button" data-view="appointments" title="Mes RDV"><i class="fa-solid fa-clipboard-check"></i></button>
+          <button type="button" data-view="records" title="Dossier médical"><i class="fa-solid fa-notes-medical"></i></button>
+          <button type="button" data-view="profile" title="Profil"><i class="fa-solid fa-circle-user"></i></button>
+          <button id="logoutBtn" title="Déconnexion"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        </aside>
+
+        <main class="content-area">
+          <div class="content-header">
+            <div class="header-title">
+              <p id="welcomeText">Gérez votre santé et vos rendez-vous</p>
+              <h1>Tableau de Bord</h1>
+            </div>
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input id="searchInput" type="text" placeholder="Rechercher un RDV..." />
+            </div>
+          </div>
+
+          <div id="dashboardContent" class="dashboard-grid">
+            <section class="col-tasks">
+              <div class="card">
+                <div class="card-header">
+                  <h3>Mes Rendez-vous</h3>
+                  <button class="icon-btn-circle" type="button" data-view="book" title="Nouveau RDV">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+                <div class="tasks-tabs">
+                  <button class="active">À venir</button>
+                  <button>Historique</button>
+                </div>
+                <button class="dropdown-btn">
+                  <span class="dropdown-badge" id="upcomingBadge">0</span>
+                  Rendez-vous à venir
+                  <i class="fa-solid fa-chevron-down" style="margin-left: auto; color: #9ca3af"></i>
+                </button>
+                <div class="list" id="appointmentsList">
+                  <div class="empty">Chargement des rendez-vous...</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="col-overview">
+              <div class="card">
+                <div class="card-header">
+                  <h3>Aperçu Patient</h3>
+                  <button class="icon-btn-circle" type="button" data-view="profile" title="Profil">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </button>
+                </div>
+                <div class="donut-wrapper">
+                  <div class="donut-chart"></div>
+                </div>
+                <div class="legend-row">
+                  <div><span class="dot orange"></span>En attente: <span id="pendingCount">0</span></div>
+                  <div><span class="dot blue"></span>Confirmés: <span id="confirmedCount">0</span></div>
+                </div>
+                <p class="muted" style="margin-top: 12px">
+                  <span class="dot gray"></span>
+                  Dossiers médicaux: <span id="recordsCount">0</span>
+                </p>
+              </div>
+
+              <div class="card profile-card">
+                <div class="card-header">
+                  <h3>Profil</h3>
+                  <button class="icon-btn-circle"><i class="fa-solid fa-ellipsis"></i></button>
+                </div>
+                <div class="metric-card" id="profileInfo">
+                  <div class="empty">Chargement du profil...</div>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill"></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="col-stats">
+              <div class="card" style="height: 100%">
+                <div class="card-header">
+                  <h3>Dossier Médical</h3>
+                  <button class="icon-btn-circle" type="button" data-view="records" title="Dossier médical">
+                    <i class="fa-solid fa-sliders"></i>
+                  </button>
+                </div>
+                <div class="line-chart-area">
+                  <div class="chart-legend">
+                    <div><span class="dot blue"></span>RDV: <strong id="appointmentsCount">0</strong></div>
+                    <div><span class="dot orange"></span>Médecins: <strong id="doctorsCount">0</strong></div>
+                  </div>
+                  <svg viewBox="0 0 500 240" preserveAspectRatio="none" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="rgba(43,129,249,0.15)" />
+                        <stop offset="100%" stop-color="rgba(43,129,249,0)" />
+                      </linearGradient>
+                      <linearGradient id="orangeGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="rgba(247,136,30,0.15)" />
+                        <stop offset="100%" stop-color="rgba(247,136,30,0)" />
+                      </linearGradient>
+                    </defs>
+                    <line x1="0" y1="40" x2="500" y2="40" stroke="#F3F4F6" stroke-width="1.5" />
+                    <line x1="0" y1="90" x2="500" y2="90" stroke="#F3F4F6" stroke-width="1.5" />
+                    <line x1="0" y1="140" x2="500" y2="140" stroke="#F3F4F6" stroke-width="1.5" />
+                    <line x1="0" y1="190" x2="500" y2="190" stroke="#F3F4F6" stroke-width="1.5" />
+                    <path d="M0,130 C40,120 60,165 105,130 C145,98 160,160 205,130 C250,96 280,105 310,150 C345,202 390,70 430,92 C465,112 485,105 500,100 L500,240 L0,240 Z" fill="url(#blueGrad)" />
+                    <path d="M0,130 C40,120 60,165 105,130 C145,98 160,160 205,130 C250,96 280,105 310,150 C345,202 390,70 430,92 C465,112 485,105 500,100" fill="none" stroke="#2B81F9" stroke-width="2.5" />
+                    <path d="M0,200 C35,190 60,178 90,184 C130,195 160,218 205,196 C250,174 280,178 315,205 C350,230 385,168 425,172 C460,176 485,188 500,186 L500,240 L0,240 Z" fill="url(#orangeGrad)" />
+                    <path d="M0,200 C35,190 60,178 90,184 C130,195 160,218 205,196 C250,174 280,178 315,205 C350,230 385,168 425,172 C460,176 485,188 500,186" fill="none" stroke="#F7881E" stroke-width="2.5" />
+                    <line x1="260" y1="20" x2="260" y2="240" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="4,4" />
+                    <circle cx="260" cy="105" r="5" fill="white" stroke="#2B81F9" stroke-width="2.5" />
+                    <circle cx="260" cy="180" r="5" fill="white" stroke="#F7881E" stroke-width="2.5" />
+                  </svg>
+                  <div class="x-axis">
+                    <span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Juin</span>
+                  </div>
+                  <div class="list" id="recordsList" style="margin-top: 18px">
+                    <div class="empty">Chargement du dossier médical...</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:5000/api";
+      const token = localStorage.getItem("token");
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const state = {
+        profile: null,
+        appointments: [],
+        records: [],
+        doctors: [],
+        activeView: "home",
+        selectedDoctorId: null,
+      };
+
+      const formatDate = (value) => {
+        if (!value) return "Date non renseignée";
+        return new Date(value).toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+      };
+
+      const normalizeDate = (value) => {
+        if (!value) return null;
+        const date = new Date(value);
+        date.setHours(0, 0, 0, 0);
+        return date;
+      };
+
+      const request = async (path) => {
+        const response = await fetch(`${API_BASE}${path}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(data.error || "Erreur API");
+        return data;
+      };
+
+      const postRequest = async (path, body) => {
+        const response = await fetch(`${API_BASE}${path}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(body),
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(data.error || "Erreur API");
+        return data;
+      };
+
+      const statusLabel = (status) =>
+        ({ pending: "En attente", confirmed: "Confirmé", cancelled: "Annulé", completed: "Terminé" })[status] ||
+        status ||
+        "Statut inconnu";
+
+      const renderProfile = (profile) => {
+        if (!profile) return;
+        const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "Patient";
+        document.getElementById("welcomeText").textContent = `Bonjour ${fullName}`;
+        document.getElementById("userEmail").textContent = profile.email || "Espace patient";
+        const target = document.getElementById("profileInfo");
+        if (target) target.innerHTML = profileRows(profile);
+      };
+
+      const renderAppointments = (appointments) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const upcoming = appointments
+          .filter((appointment) => {
+            const date = normalizeDate(appointment.appointment_date);
+            return date && date >= today && appointment.status !== "cancelled";
+          })
+          .sort((a, b) => new Date(a.appointment_date) - new Date(b.appointment_date));
+
+        if (document.getElementById("upcomingBadge")) document.getElementById("upcomingBadge").textContent = upcoming.length;
+        if (document.getElementById("appointmentsCount")) document.getElementById("appointmentsCount").textContent = appointments.length;
+        if (document.getElementById("pendingCount")) document.getElementById("pendingCount").textContent = appointments.filter((a) => a.status === "pending").length;
+        if (document.getElementById("confirmedCount")) document.getElementById("confirmedCount").textContent = appointments.filter((a) => a.status === "confirmed").length;
+        if (document.getElementById("doctorsCount")) document.getElementById("doctorsCount").textContent = new Set(appointments.map((a) => a.doctor_id).filter(Boolean)).size;
+
+        const list = document.getElementById("appointmentsList");
+        if (!list) return;
+        if (!upcoming.length) {
+          list.innerHTML = '<div class="empty">Aucun rendez-vous à venir.</div>';
+          return;
+        }
+
+        list.innerHTML = upcoming
+          .slice(0, 4)
+          .map(
+            (appointment, index) => `
+              <article class="task-card ${index % 2 ? "blue" : "orange"}">
+                <div class="task-check"><i class="fa-regular fa-circle-check"></i></div>
+                <div class="task-icon-wrapper"><i class="fa-solid fa-user-doctor"></i></div>
+                <h4>Dr. ${appointment.doctor_name || "Médecin"} - ${formatDate(appointment.appointment_date)}</h4>
+                <p>${appointment.specialty || "Spécialité non renseignée"} · ${appointment.appointment_time || "--:--"}<br />${appointment.reason || "Motif non renseigné"} · ${statusLabel(appointment.status)}</p>
+              </article>
+            `,
+          )
+          .join("");
+      };
+
+      const renderRecords = (records) => {
+        if (document.getElementById("recordsCount")) document.getElementById("recordsCount").textContent = records.length;
+        const list = document.getElementById("recordsList");
+        if (!list) return;
+        if (!records.length) {
+          list.innerHTML = '<div class="empty">Aucun dossier médical disponible.</div>';
+          return;
+        }
+
+        list.innerHTML = records
+          .slice(0, 3)
+          .map(
+            (record) => `
+              <article class="record-item">
+                <div class="item-icon"><i class="fa-solid fa-file-waveform"></i></div>
+                <div>
+                  <h4>${record.reason_for_visit || record.diagnosis || "Consultation"}</h4>
+                  <p class="muted">Dr. ${record.doctor_name || "Médecin"} · ${record.treatment || "Compte rendu en attente"}</p>
+                </div>
+                <span class="badge">${formatDate(record.visit_date)}</span>
+              </article>
+            `,
+          )
+          .join("");
+      };
+
+      const showError = (targetId, message) => {
+        document.getElementById(targetId).innerHTML = `<div class="error">${message}</div>`;
+      };
+
+      const setHeader = (subtitle, title, placeholder = "Rechercher...") => {
+        document.getElementById("welcomeText").textContent = subtitle;
+        document.querySelector(".header-title h1").textContent = title;
+        document.getElementById("searchInput").placeholder = placeholder;
+      };
+
+      const setActiveButton = (viewName) => {
+        document.querySelectorAll(".sidebar [data-view]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.view === viewName);
+        });
+      };
+
+      const homeTemplate = () => document.getElementById("dashboardContent").innerHTML = `
+            <section class="col-tasks">
+              <div class="card">
+                <div class="card-header">
+                  <h3>Mes Rendez-vous</h3>
+                  <button class="icon-btn-circle" type="button" data-view="book" title="Nouveau RDV">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+                <div class="tasks-tabs">
+                  <button class="active">À venir</button>
+                  <button type="button" data-view="appointments">Historique</button>
+                </div>
+                <button class="dropdown-btn">
+                  <span class="dropdown-badge" id="upcomingBadge">0</span>
+                  Rendez-vous à venir
+                  <i class="fa-solid fa-chevron-down" style="margin-left: auto; color: #9ca3af"></i>
+                </button>
+                <div class="list" id="appointmentsList"></div>
+              </div>
+            </section>
+
+            <section class="col-overview">
+              <div class="card">
+                <div class="card-header">
+                  <h3>Aperçu Patient</h3>
+                  <button class="icon-btn-circle" type="button" data-view="profile" title="Profil">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </button>
+                </div>
+                <div class="donut-wrapper"><div class="donut-chart"></div></div>
+                <div class="legend-row">
+                  <div><span class="dot orange"></span>En attente: <span id="pendingCount">0</span></div>
+                  <div><span class="dot blue"></span>Confirmés: <span id="confirmedCount">0</span></div>
+                </div>
+                <p class="muted" style="margin-top: 12px"><span class="dot gray"></span>Dossiers médicaux: <span id="recordsCount">0</span></p>
+              </div>
+              <div class="card profile-card">
+                <div class="card-header"><h3>Profil</h3></div>
+                <div class="metric-card" id="profileInfo"></div>
+                <div class="progress-track"><div class="progress-fill"></div></div>
+              </div>
+            </section>
+
+            <section class="col-stats">
+              <div class="card" style="height: 100%">
+                <div class="card-header">
+                  <h3>Dossier Médical</h3>
+                  <button class="icon-btn-circle" type="button" data-view="records"><i class="fa-solid fa-sliders"></i></button>
+                </div>
+                <div class="line-chart-area">
+                  <div class="chart-legend">
+                    <div><span class="dot blue"></span>RDV: <strong id="appointmentsCount">0</strong></div>
+                    <div><span class="dot orange"></span>Médecins: <strong id="doctorsCount">0</strong></div>
+                  </div>
+                  <svg viewBox="0 0 500 240" preserveAspectRatio="none" aria-hidden="true">
+                    <defs><linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(43,129,249,0.15)" /><stop offset="100%" stop-color="rgba(43,129,249,0)" /></linearGradient><linearGradient id="orangeGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(247,136,30,0.15)" /><stop offset="100%" stop-color="rgba(247,136,30,0)" /></linearGradient></defs>
+                    <line x1="0" y1="40" x2="500" y2="40" stroke="#F3F4F6" stroke-width="1.5" /><line x1="0" y1="90" x2="500" y2="90" stroke="#F3F4F6" stroke-width="1.5" /><line x1="0" y1="140" x2="500" y2="140" stroke="#F3F4F6" stroke-width="1.5" /><line x1="0" y1="190" x2="500" y2="190" stroke="#F3F4F6" stroke-width="1.5" />
+                    <path d="M0,130 C40,120 60,165 105,130 C145,98 160,160 205,130 C250,96 280,105 310,150 C345,202 390,70 430,92 C465,112 485,105 500,100 L500,240 L0,240 Z" fill="url(#blueGrad)" />
+                    <path d="M0,130 C40,120 60,165 105,130 C145,98 160,160 205,130 C250,96 280,105 310,150 C345,202 390,70 430,92 C465,112 485,105 500,100" fill="none" stroke="#2B81F9" stroke-width="2.5" />
+                    <path d="M0,200 C35,190 60,178 90,184 C130,195 160,218 205,196 C250,174 280,178 315,205 C350,230 385,168 425,172 C460,176 485,188 500,186 L500,240 L0,240 Z" fill="url(#orangeGrad)" />
+                    <path d="M0,200 C35,190 60,178 90,184 C130,195 160,218 205,196 C250,174 280,178 315,205 C350,230 385,168 425,172 C460,176 485,188 500,186" fill="none" stroke="#F7881E" stroke-width="2.5" />
+                  </svg>
+                  <div class="x-axis"><span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Juin</span></div>
+                  <div class="list" id="recordsList" style="margin-top: 18px"></div>
+                </div>
+              </div>
+            </section>`;
+
+      const renderBookView = () => {
+        setHeader("Choisissez un médecin et un créneau", "Prendre RDV", "Rechercher un médecin...");
+        document.getElementById("dashboardContent").className = "view-grid";
+        document.getElementById("dashboardContent").innerHTML = `
+          <section class="card" style="grid-column: 1 / -1">
+            <div class="card-header"><h3>Médecins disponibles</h3></div>
+            <div class="view-grid" id="doctorsList">${state.doctors.length ? "" : '<div class="empty">Aucun médecin disponible pour le moment.</div>'}</div>
+          </section>
+          <section class="card" style="grid-column: 1 / -1">
+            <div class="card-header"><h3>Demande de rendez-vous</h3></div>
+            <form class="form-grid" onsubmit="submitInlineAppointment(event)">
+              <div class="form-group"><label for="appointmentDate">Date</label><input id="appointmentDate" type="date" required /></div>
+              <div class="form-group"><label for="appointmentTime">Heure</label><input id="appointmentTime" type="time" required /></div>
+              <div class="form-group full"><label for="appointmentReason">Motif</label><textarea id="appointmentReason" placeholder="Décrivez votre besoin"></textarea></div>
+              <div class="form-group full"><button class="primary-action" type="submit">Demander le RDV</button></div>
+            </form>
+          </section>`;
+        const doctorsList = document.getElementById("doctorsList");
+        if (state.doctors.length) {
+          doctorsList.innerHTML = state.doctors.map((doctor) => `
+            <article class="doctor-card ${String(state.selectedDoctorId) === String(doctor.id) ? "selected" : ""}" onclick="selectInlineDoctor(${doctor.id})">
+              <h4>${doctor.name}</h4>
+              <p class="muted">${doctor.specialty || "Pédiatrie"} · ${doctor.clinic_name || "Cabinet privé"}</p>
+              <p class="muted">${doctor.clinic_city || ""} ${doctor.phone ? "· " + doctor.phone : ""}</p>
+            </article>
+          `).join("");
+        }
+      };
+
+      const renderAppointmentsView = () => {
+        setHeader("Historique et suivi des rendez-vous", "Mes RDV", "Rechercher dans mes RDV...");
+        document.getElementById("dashboardContent").className = "view-grid";
+        document.getElementById("dashboardContent").innerHTML = `
+          <section class="card" style="grid-column: 1 / -1">
+            <div class="card-header"><h3>Mes rendez-vous</h3><button class="primary-action" type="button" data-view="book">Nouveau RDV</button></div>
+            <div class="view-grid">
+              ${state.appointments.length ? state.appointments.map((apt) => `
+                <article class="appointment-card-lite">
+                  <span class="badge ${apt.status || ""}">${statusLabel(apt.status)}</span>
+                  <h4 style="margin-top:10px">Dr. ${apt.doctor_name || "Médecin"}</h4>
+                  <p class="muted">${formatDate(apt.appointment_date)} · ${apt.appointment_time || "--:--"}</p>
+                  <p class="muted">${apt.reason || "Motif non renseigné"}</p>
+                </article>
+              `).join("") : '<div class="empty">Aucun rendez-vous.</div>'}
+            </div>
+          </section>`;
+      };
+
+      const renderRecordsView = () => {
+        setHeader("Vos informations et comptes rendus", "Dossier médical", "Rechercher dans le dossier...");
+        document.getElementById("dashboardContent").className = "view-grid";
+        document.getElementById("dashboardContent").innerHTML = `
+          <section class="card">
+            <div class="card-header"><h3>Mes informations</h3></div>
+            <div class="metric-card" id="recordProfileInfo"></div>
+          </section>
+          <section class="card" style="grid-column: span 2">
+            <div class="card-header"><h3>Historique médical</h3></div>
+            <div class="list">
+              ${state.records.length ? state.records.map((record) => `
+                <article class="record-card-lite">
+                  <h4>${record.reason_for_visit || record.diagnosis || "Consultation"}</h4>
+                  <p class="muted">${formatDate(record.visit_date)} · Dr. ${record.doctor_name || "Médecin"}</p>
+                  <p class="muted">${record.treatment || record.medications || "Compte rendu en attente"}</p>
+                </article>
+              `).join("") : '<div class="empty">Aucun dossier médical disponible.</div>'}
+            </div>
+          </section>`;
+        document.getElementById("recordProfileInfo").innerHTML = profileRows(state.profile);
+      };
+
+      const profileRows = (profile) => {
+        const fullName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || "Patient";
+        return `
+          <div class="metric-row"><span>Nom</span><strong style="font-size:14px">${fullName}</strong></div>
+          <div class="metric-row"><span>Email</span><strong style="font-size:14px">${profile?.email || "Non renseigné"}</strong></div>
+          <div class="metric-row"><span>Téléphone</span><strong style="font-size:14px">${profile?.phone || "Non renseigné"}</strong></div>
+          <div class="metric-row"><span>Naissance</span><strong style="font-size:14px">${profile?.date_of_birth ? formatDate(profile.date_of_birth) : "Non renseignée"}</strong></div>
+        `;
+      };
+
+      const renderProfileView = () => {
+        setHeader("Modifier vos informations patient", "Profil", "Rechercher...");
+        const profile = state.profile || {};
+        document.getElementById("dashboardContent").className = "view-grid";
+        document.getElementById("dashboardContent").innerHTML = `
+          <section class="card">
+            <div class="card-header"><h3>Résumé</h3></div>
+            <div class="metric-card">${profileRows(profile)}</div>
+          </section>
+          <section class="card" style="grid-column: span 2">
+            <div class="card-header"><h3>Informations personnelles</h3></div>
+            <form class="form-grid" onsubmit="submitInlineProfile(event)">
+              <div class="form-group"><label for="profileFirstName">Prénom</label><input id="profileFirstName" value="${profile.first_name || ""}" required /></div>
+              <div class="form-group"><label for="profileLastName">Nom</label><input id="profileLastName" value="${profile.last_name || ""}" required /></div>
+              <div class="form-group"><label>Email</label><input value="${profile.email || ""}" disabled /></div>
+              <div class="form-group"><label for="profilePhone">Téléphone</label><input id="profilePhone" value="${profile.phone || ""}" /></div>
+              <div class="form-group"><label for="profileBirthDate">Date de naissance</label><input id="profileBirthDate" type="date" value="${profile.date_of_birth ? profile.date_of_birth.slice(0, 10) : ""}" /></div>
+              <div class="form-group"><label for="profileBloodType">Groupe sanguin</label><select id="profileBloodType">
+                <option value="">Non renseigné</option>
+                ${["A+","A-","B+","B-","AB+","AB-","O+","O-"].map((type) => `<option value="${type}" ${profile.blood_type === type ? "selected" : ""}>${type}</option>`).join("")}
+              </select></div>
+              <div class="form-group"><label for="profileAllergies">Allergies</label><input id="profileAllergies" value="${profile.allergies || ""}" /></div>
+              <div class="form-group"><label for="profileChronic">Maladies chroniques</label><input id="profileChronic" value="${profile.chronic_diseases || ""}" /></div>
+              <div class="form-group full"><button class="primary-action" type="submit">Enregistrer</button></div>
+            </form>
+          </section>`;
+      };
+
+      const switchView = (viewName) => {
+        state.activeView = viewName;
+        setActiveButton(viewName);
+        if (viewName === "home") {
+          document.getElementById("dashboardContent").className = "dashboard-grid";
+          setHeader(state.profile ? `Bonjour ${[state.profile.first_name, state.profile.last_name].filter(Boolean).join(" ")}` : "Gérez votre santé et vos rendez-vous", "Tableau de Bord", "Rechercher un RDV...");
+          homeTemplate();
+          renderProfile(state.profile || {});
+          renderAppointments(state.appointments);
+          renderRecords(state.records);
+        }
+        if (viewName === "book") renderBookView();
+        if (viewName === "appointments") renderAppointmentsView();
+        if (viewName === "records") renderRecordsView();
+        if (viewName === "profile") renderProfileView();
+      };
+
+      const init = async () => {
+        if (!token) {
+          window.location.href = "auth.html";
+          return;
+        }
+
+        if (storedUser.email) document.getElementById("userEmail").textContent = storedUser.email;
+
+        try {
+          state.profile = await request("/patients/profile");
+        } catch (error) {
+          state.profile = {};
+        }
+
+        try {
+          state.appointments = await request("/appointments/my-appointments");
+        } catch (error) {
+          state.appointments = [];
+        }
+
+        try {
+          state.records = await request("/medical-records/my-records");
+        } catch (error) {
+          state.records = [];
+        }
+
+        try {
+          state.doctors = await request("/doctors");
+        } catch (error) {
+          state.doctors = [];
+        }
+
+        switchView("home");
+      };
+
+      window.selectInlineDoctor = (doctorId) => {
+        state.selectedDoctorId = doctorId;
+        renderBookView();
+      };
+
+      window.submitInlineAppointment = async (event) => {
+        event.preventDefault();
+        if (!state.selectedDoctorId) {
+          alert("Sélectionnez un médecin.");
+          return;
+        }
+
+        try {
+          await postRequest("/appointments", {
+            doctor_id: state.selectedDoctorId,
+            appointment_date: document.getElementById("appointmentDate").value,
+            appointment_time: document.getElementById("appointmentTime").value,
+            reason: document.getElementById("appointmentReason").value,
+          });
+          state.appointments = await request("/appointments/my-appointments");
+          alert("RDV demandé avec succès.");
+          switchView("appointments");
+        } catch (error) {
+          alert("Impossible de créer le rendez-vous.");
+        }
+      };
+
+      window.submitInlineProfile = async (event) => {
+        event.preventDefault();
+        try {
+          const result = await fetch(`${API_BASE}/patients/profile`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              first_name: document.getElementById("profileFirstName").value,
+              last_name: document.getElementById("profileLastName").value,
+              phone: document.getElementById("profilePhone").value,
+              date_of_birth: document.getElementById("profileBirthDate").value,
+              blood_type: document.getElementById("profileBloodType").value,
+              allergies: document.getElementById("profileAllergies").value,
+              chronic_diseases: document.getElementById("profileChronic").value,
+            }),
+          }).then((r) => r.json());
+          if (result.error) throw new Error(result.error);
+          state.profile = result.patient;
+          alert("Profil mis à jour.");
+          switchView("profile");
+        } catch (error) {
+          alert("Impossible de mettre à jour le profil.");
+        }
+      };
+
+      document.addEventListener("click", (event) => {
+        const viewButton = event.target.closest("[data-view]");
+        if (!viewButton) return;
+        event.preventDefault();
+        switchView(viewButton.dataset.view);
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "auth.html";
+      });
+
+      init();
+    </script>
+  </body>
+</html>
