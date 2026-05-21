@@ -1,4 +1,5 @@
 const db = require("../config/database");
+const casablancaPediatricProviders = require("../data/casablancaPediatricProviders");
 
 class Doctor {
   static async create(data) {
@@ -119,13 +120,55 @@ class Doctor {
     return result.rows[0];
   }
 
-  static async getPrivateClinics() {
-    const result = await db.query(
-      `SELECT id, name, address, city, phone, website, source_url
-       FROM private_pediatric_clinics
-       ORDER BY city, name`,
-    );
-    return result.rows;
+  static async getPrivateClinics(filters = {}) {
+    const limit = Math.min(Number(filters.limit) || 200, 200);
+    const city = (filters.city || "Casablanca").toLowerCase();
+    const category = filters.category || null;
+
+    try {
+      const values = [city, limit];
+      const where = ["LOWER(city) = $1"];
+
+      if (category) {
+        values.splice(1, 0, category);
+        where.push("category = $2");
+      }
+
+      const result = await db.query(
+        `SELECT id, name, category, specialties, address, city, district, phone, website, source_url
+         FROM private_pediatric_clinics
+         WHERE ${where.join(" AND ")}
+         ORDER BY
+           CASE category
+             WHEN 'cabinet_pediatrique' THEN 1
+             WHEN 'clinique_pediatrique' THEN 2
+             WHEN 'maternite_mere_enfant' THEN 3
+             ELSE 4
+           END,
+           name
+         LIMIT $${values.length}`,
+        values,
+      );
+      if (result.rows.length) return result.rows;
+    } catch (error) {
+      const canUseSeedFallback = ["42P01", "42703", "ECONNREFUSED", "3D000"].includes(error.code);
+      if (!canUseSeedFallback) {
+        throw error;
+      }
+    }
+
+    return casablancaPediatricProviders
+      .filter((provider) => provider.city.toLowerCase() === city)
+      .filter((provider) => !category || provider.category === category)
+      .sort((a, b) => {
+        const order = {
+          cabinet_pediatrique: 1,
+          clinique_pediatrique: 2,
+          maternite_mere_enfant: 3,
+        };
+        return (order[a.category] || 4) - (order[b.category] || 4) || a.name.localeCompare(b.name);
+      })
+      .slice(0, limit);
   }
 }
 

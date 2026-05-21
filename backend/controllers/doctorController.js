@@ -147,7 +147,11 @@ exports.getAvailability = async (req, res) => {
 
 exports.getPrivateClinics = async (req, res) => {
   try {
-    const clinics = await Doctor.getPrivateClinics();
+    const clinics = await Doctor.getPrivateClinics({
+      city: req.query.city,
+      category: req.query.category,
+      limit: req.query.limit,
+    });
     res.json(clinics);
   } catch (error) {
     res.status(500).json({ error: "Erreur" });

@@ -227,17 +227,18 @@
           <img src="image.png" alt="GeniDoc" class="logo-img" />
           <h1>Accès médecin</h1>
           <p>
-            Créez votre profil praticien et rattachez-le à votre cabinet privé
+            Créez votre profil praticien et rattachez-le à votre cabinet privé, clinique pédiatrique ou maternité
             pour gérer vos consultations depuis GeniDoc.
           </p>
           <div class="pill-list">
             <div class="pill"><i class="fa-solid fa-stethoscope"></i> Profil médecin personnel</div>
-            <div class="pill"><i class="fa-solid fa-house-medical"></i> Cabinet privé ou clinique</div>
+            <div class="pill"><i class="fa-solid fa-house-medical"></i> Cabinets privés Casablanca en priorité</div>
+            <div class="pill"><i class="fa-solid fa-baby"></i> Pédiatrie, maternité et mère-enfant</div>
             <div class="pill"><i class="fa-solid fa-calendar-check"></i> Planning des consultations</div>
           </div>
         </div>
         <p>
-          Les cabinets proposés sont des suggestions publiques. Un médecin peut
+          Les cabinets proposés sont des suggestions publiques, avec Casablanca servie en premier jusqu'à 200 entrées. Un médecin peut
           saisir son propre cabinet s'il n'apparaît pas dans la liste.
         </p>
       </section>
@@ -383,11 +384,11 @@
 
       async function loadClinics() {
         try {
-          const response = await fetch(`${API_BASE}/doctors/private-clinics`);
+          const response = await fetch(`${API_BASE}/doctors/private-clinics?city=Casablanca&limit=200`);
           clinics = await response.json();
           const datalist = document.getElementById("clinicSuggestions");
           datalist.innerHTML = clinics
-            .map((clinic) => `<option value="${clinic.name}">${clinic.city}</option>`)
+            .map((clinic) => `<option value="${clinic.name}">${clinic.city}${clinic.category ? " - " + clinic.category.replaceAll("_", " ") : ""}</option>`)
             .join("");
         } catch (error) {
           clinics = [];

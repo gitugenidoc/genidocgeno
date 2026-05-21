@@ -10,6 +10,7 @@
     "db:init:auth": "node backend/scripts/initAuthSchema.js",
     "db:init:school": "node backend/scripts/initSchoolSchema.js",
     "db:init:production": "node backend/scripts/initProductionSchema.js",
+    "db:seed:casa-pediatrics": "node backend/scripts/seedCasablancaPediatricProviders.js",
     "bootstrap:admin": "node backend/scripts/bootstrapAdmin.js",
     "demo:purge": "node backend/scripts/purgeDemoData.js",
     "backup:pg": "node backend/scripts/backupPostgres.js",
