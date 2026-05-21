@@ -90,6 +90,14 @@ const services = [
         });
       }
 
+      const topOrbit = document.getElementById("topOrbitShowcase");
+      const topOrbitRing = topOrbit?.querySelector(".top-orbit-ring");
+      let topOrbitPaused = false;
+      topOrbit?.querySelectorAll(".top-orbit-card").forEach((card) => {
+        card.addEventListener("mouseenter", () => { topOrbitPaused = true; });
+        card.addEventListener("mouseleave", () => { topOrbitPaused = false; });
+      });
+
       let targetY = window.scrollY, currentY = window.scrollY;
       function smooth() {
         currentY += (targetY - currentY) * 0.12;
@@ -103,6 +111,12 @@ const services = [
         document.getElementById("header").classList.toggle("scrolled", window.scrollY > 28);
         const hero = document.getElementById("heroVisual");
         if (hero) hero.style.setProperty("--parallax", `${window.scrollY * 0.06}px`);
+        if (topOrbit && !topOrbitPaused) {
+          const spin = Math.min(window.scrollY * 0.025, 18);
+          topOrbit.style.setProperty("--top-orbit-y", `${Math.min(window.scrollY * 0.025, 14)}px`);
+          topOrbitRing?.style.setProperty("--top-orbit-spin", `${spin}deg`);
+          topOrbitRing?.style.setProperty("--top-orbit-spin-back", `${-spin}deg`);
+        }
       }, { passive: true });
 
       document.querySelectorAll(".gallery-card").forEach((card) => {
